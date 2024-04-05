@@ -1,0 +1,27 @@
+version: "3.3"
+
+services:
+  dev-py311-jupyter:
+    image: ${IMAGE_NAME***REMOVED***:${IMAGE_TAG***REMOVED***
+    platform: linux/amd64
+    build:
+      context: ../../
+      dockerfile: ${DOCKERFILE_PATH***REMOVED***
+      args:
+        CURRENT_PATH: ${PWD***REMOVED***/../..
+    ports:
+      - ${JUPYTER_NB_PORT***REMOVED***:8888
+    working_dir: /workspace
+    environment:
+      PYTHONPATH: ${PYTHONPATH***REMOVED***
+      FASTAPI_OPENAPI_DEFER_BUILD: "true"
+      TZ: Asia/Seoul
+    volumes:
+      - ${PWD***REMOVED***/../../../server:/workspace/server
+      - ${PWD***REMOVED***/../../../metadata/.vscode-server:/home/jovyan/.vscode-server
+      - ${PWD***REMOVED***/../../../metadata/.local/share/jupyter/runtime:/home/jovyan/.local/share/jupyter/runtime
+      #only in windows & wsl env
+      #- ${PWD***REMOVED***/../../../../.vscode-server:/home/jovyan/.vscode-server
+      #- ${PWD***REMOVED***/../../../../.local/share/jupyter/runtime:/home/jovyan/.local/share/jupyter/runtime
+      # https://devopscube.com/run-docker-in-docker/
+      - /var/run/docker.sock:/var/run/docker.sock
