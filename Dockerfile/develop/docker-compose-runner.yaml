@@ -1,0 +1,46 @@
+version: "3.3"
+
+services:
+  change-vol-ownership:
+    image: ubuntu:22.04
+    user: "root"
+    group_add:
+      - '${DOCKER_GROUP_ID}'
+    environment:
+      DOCKER_GROUP_ID: '${DOCKER_GROUP_ID}'
+    volumes:
+      # https://devopscube.com/run-docker-in-docker/
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./change-docker-ownership.sh:/entrypoint.sh
+    entrypoint: ["sh"]
+    command: ["-c", "sh /entrypoint.sh"]
+  runner-base:
+    image: ${BASE_IMAGE_NAME}:${BASE_IMAGE_TAG}
+    container_name: ojitong-runner-base
+    platform: linux/amd64
+    user: "1000"
+    group_add:
+      - '${DOCKER_GROUP_ID}'
+    build:
+      context: ../../
+      dockerfile: ${PWD}/py311-runner-base.Dockerfile
+      args:
+        CURRENT_PATH: ${PWD}/../..
+        DOCKER_GROUP_NAME: ${DOCKER_GROUP_NAME}
+        DOCKER_GROUP_ID: ${DOCKER_GROUP_ID}
+    environment:
+      GITHUB_OWNER: ${GITHUB_OWNER}
+      GITHUB_REPOSITORY: ${GITHUB_REPOSITORY}
+      APP_ID: ${APP_ID}
+      PEM_FILE_PATH: ${PEM_FILE_PATH}
+      RUNNER_LABELS: self-hosted,Linux,${GITHUB_ACTOR}
+      RUNNER_NAME: base-runner-${GITHUB_ACTOR}
+    entrypoint: ["sh"]
+    command: ["-c", "sh ./entrypoint.sh"]
+    volumes:
+      # https://devopscube.com/run-docker-in-docker/
+      - /var/run/docker.sock:/var/run/docker.sock:z
+    depends_on:
+      change-vol-ownership:
+        # Wait for the ownership to change
+        condition: service_completed_successfully
