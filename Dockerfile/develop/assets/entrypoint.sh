@@ -1,17 +1,29 @@
 #!/bin/sh
 pem_file_path=${PEM_FILE_PATH}
-
-pip3 install jwt
-jwt_token=$(python3 assets/generate_jwt_token.py ${PEM_FILE_PATH} ${APP_ID})
+jwt_token=$(python3 generate_jwt_token.py ${PEM_FILE_PATH} ${APP_ID})
 
 registration_url="https://api.github.com/app/installations/${APP_ID}/access_tokens"
 echo "Requesting registration URL at '${registration_url}'"
 
-payload=$(curl --request POST \
---url ${registration_url} \
---header "Accept: application/vnd.github+json" \
---header "Authorization: Bearer ${jwt_token}" \
---header "X-GitHub-Api-Version: 2022-11-28")
+payload=$(curl -H "Authorization: Bearer ${jwt_token}" \
+-H "Accept: application/vnd.github.v3+json" \
+https://api.github.com/app/installations)
+installation_id=$(echo $payload | jq '.[0].id')
+
+payload=$(curl -X POST -H "Authorization: Bearer ${jwt_token}" \
+-H "Accept: application/vnd.github+json" \
+-H "X-GitHub-Api-Version: 2022-11-28" \
+https://api.github.com/app/installations/${installation_id}/access_tokens)
+
+registration_token=$(echo $payload | jq .token --raw-output)
+
+payload=$(curl -L \
+-X POST \
+-H "Accept: application/vnd.github+json" \
+-H "Authorization: token ${registration_token}" \
+-H "X-GitHub-Api-Version: 2022-11-28" \
+https://api.github.com/repos/subworkers/ojitong/actions/runners/registration-token)
+
 export RUNNER_TOKEN=$(echo $payload | jq .token --raw-output)
 
 ./config.sh \
@@ -31,5 +43,4 @@ trap 'remove; exit 130' INT
 trap 'remove; exit 143' TERM
 
 ./run.sh "$*" &
-
 wait $!
