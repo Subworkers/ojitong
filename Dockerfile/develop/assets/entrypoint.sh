@@ -2,7 +2,7 @@
 pem_file_path=${PEM_FILE_PATH}
 
 pip3 install jwt
-jwt_token=$(python3 generate_jwt_token.py ${PEM_FILE_PATH} ${APP_ID})
+jwt_token=$(python3 assets/generate_jwt_token.py ${PEM_FILE_PATH} ${APP_ID})
 
 registration_url="https://api.github.com/app/installations/${APP_ID}/access_tokens"
 echo "Requesting registration URL at '${registration_url}'"

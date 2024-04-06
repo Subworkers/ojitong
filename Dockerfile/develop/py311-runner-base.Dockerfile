@@ -37,7 +37,7 @@ RUN newgrp ${DOCKER_GROUP_NAME}
 
 WORKDIR ${RUNNER_WORKDIR}
 
-COPY Dockerfile/develop/entrypoint.sh ${RUNNER_WORKDIR}/entrypoint.sh
+COPY Dockerfile/develop/assets/entrypoint.sh ${RUNNER_WORKDIR}/entrypoint.sh
 RUN chmod -R a+w ${RUNNER_WORKDIR}
 
 USER root
