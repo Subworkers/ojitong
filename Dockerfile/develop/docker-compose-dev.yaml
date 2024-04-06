@@ -17,7 +17,7 @@ services:
       FASTAPI_OPENAPI_DEFER_BUILD: "true"
       TZ: Asia/Seoul
     volumes:
-      - ${PWD***REMOVED***/../../../server:/workspace/server
+      - ${PWD***REMOVED***/../../../ojitong:/workspace/ojitong
       - ${PWD***REMOVED***/../../../metadata/.vscode-server:/home/jovyan/.vscode-server
       - ${PWD***REMOVED***/../../../metadata/.local/share/jupyter/runtime:/home/jovyan/.local/share/jupyter/runtime
       #only in windows & wsl env
