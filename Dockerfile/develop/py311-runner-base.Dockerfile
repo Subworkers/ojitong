@@ -21,6 +21,7 @@ RUN apt-get install -y jq
 RUN apt-get install -y make
 RUN apt-get install -y docker-compose
 RUN apt-get install -y gh
+RUN pip3 install jwt
 
 # adduser "runner"
 RUN adduser ${USER_NAME***REMOVED***
@@ -37,7 +38,8 @@ RUN newgrp ${DOCKER_GROUP_NAME***REMOVED***
 
 WORKDIR ${RUNNER_WORKDIR***REMOVED***
 
-COPY Dockerfile/develop/entrypoint.sh ${RUNNER_WORKDIR***REMOVED***/entrypoint.sh
+COPY Dockerfile/develop/assets/generate_jwt_token.py ${RUNNER_WORKDIR***REMOVED***/generate_jwt_token.py
+COPY Dockerfile/develop/assets/entrypoint.sh ${RUNNER_WORKDIR***REMOVED***/entrypoint.sh
 RUN chmod -R a+w ${RUNNER_WORKDIR***REMOVED***
 
 USER root
