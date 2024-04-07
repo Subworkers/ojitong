@@ -35,6 +35,12 @@ RUNNER_DOCKER_GROUP_NAME=docker
 RUNNER_DOCKER_GROUP_ID=234
 RUNNER_ENV_PREFIX=DOCKER_BUILDKIT=1 BASE_IMAGE_NAME=$(RUNNER_BASE_IMAGE_NAME) BASE_IMAGE_TAG=$(RUNNER_BASE_IMAGE_TAG) TEST_IMAGE_NAME=$(RUNNER_TEST_IMAGE_NAME) TEST_IMAGE_TAG=$(RUNNER_TEST_IMAGE_TAG) DOCKER_GROUP_NAME=$(RUNNER_DOCKER_GROUP_NAME) DOCKER_GROUP_ID=$(RUNNER_DOCKER_GROUP_ID)
 
+# make auth.aws
+auth.aws:
+	rm ~/.aws/credentials
+	ln -s $(PWD)/secrets/aws-credentials ~/.aws/credentials
+	aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
+
 # make build.dev
 build.dev:
 	$(ENV_PREFIX) docker-compose -f $(DOCKERCOMPOSE_FILE_PATH) build $(DEV_CONTAINER_NAME)

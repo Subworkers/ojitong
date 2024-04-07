@@ -11,7 +11,7 @@ services:
     volumes:
       # https://devopscube.com/run-docker-in-docker/
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./change-docker-ownership.sh:/entrypoint.sh
+      - ./assets/change-docker-ownership.sh:/entrypoint.sh
     entrypoint: ["sh"]
     command: ["-c", "sh /entrypoint.sh"]
   runner-base:
@@ -40,6 +40,7 @@ services:
     volumes:
       # https://devopscube.com/run-docker-in-docker/
       - /var/run/docker.sock:/var/run/docker.sock:z
+      - ${PWD}/../../../ojitong/Dockerfile/develop/${PEM_FILE_PATH}:/actions-runner/${PEM_FILE_PATH}
     depends_on:
       change-vol-ownership:
         # Wait for the ownership to change
