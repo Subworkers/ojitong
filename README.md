@@ -19,7 +19,7 @@
 - Chaining
 
 ---
-### 의존성
+### data/requirements
 
 이 프로젝트를 실행하기 위해 다음과 같은 의존성이 필요합니다:
 
@@ -33,6 +33,10 @@
 - `python-dotenv==0.21.0`
 - `pandas==1.5.2`
 - `cryptography==39.0.2`
+---
+### Dockerfile/develop
+- makefile
+- make start - docker 실행
 ---
 ### workflow 
 | 파일        | 역할                                                                                           |
