@@ -1,4 +1,4 @@
-from data.const import operator_list
+from workflow.const import operator_list
 from workflow.utils import (
     get_letskorail,
     get_shinbundang,

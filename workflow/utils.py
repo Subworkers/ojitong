@@ -3,7 +3,7 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 
 # import json
-from data.const import (
+from workflow.const import (
     slack_url,
     slack_header,
     channel_name,
@@ -31,6 +31,13 @@ from data.const import (
 #                 ***REMOVED***
 #             ***REMOVED***
 #         ***REMOVED***
+
+from datetime import datetime, timedelta
+
+def within_one_month(date_to_check***REMOVED***:
+    current_date = datetime.today(***REMOVED***
+    one_week_ago = current_date - timedelta(weeks=4***REMOVED***
+    return one_week_ago <= date_to_check <= current_date
 
 
 def post_message(channel: str, text: str***REMOVED***:
@@ -63,7 +70,8 @@ def get_letskorail(operator: str***REMOVED***:
             td_elements = tr.find_all("td"***REMOVED***
             single_row = {key: td.text for key, td in zip(keys, td_elements***REMOVED******REMOVED***
 
-            if datetime.strptime(single_row["date"***REMOVED***, "%Y-%m-%d"***REMOVED*** == datetime.today(***REMOVED***:
+            date_to_check = datetime.strptime(single_row["date"***REMOVED***, "%Y-%m-%d"***REMOVED***
+            if within_one_month(date_to_check***REMOVED***:
                 data.append(single_row***REMOVED***
 
         if len(data***REMOVED*** > 0:
@@ -91,8 +99,9 @@ def get_shinbundang(operator: str***REMOVED***:
             title = title_elem.text.strip(***REMOVED***
             view_no = title_elem["href"***REMOVED***.split("'"***REMOVED***[1***REMOVED***
             date = row.find_all("td", class_="ac"***REMOVED***[-2***REMOVED***.text
-
-            if datetime.strptime(date, "%Y-%m-%d"***REMOVED*** == datetime.today(***REMOVED***:
+            
+            date_to_check = datetime.strptime(date, "%Y-%m-%d"***REMOVED***
+            if within_one_month(date_to_check***REMOVED***:
                 data.append(
                     {
                         "view_no": view_no,
@@ -133,7 +142,8 @@ def get_arex(operator: str***REMOVED***:
             data_no = title_tag["data-no"***REMOVED***
             date = cols[2***REMOVED***.get_text(strip=True***REMOVED***
 
-            if datetime.strptime(date, "%Y-%m-%d"***REMOVED*** == datetime.today(***REMOVED***:
+            date_to_check = datetime.strptime(date, "%Y-%m-%d"***REMOVED***
+            if within_one_month(date_to_check***REMOVED***:
                 data.append(
                     {
                         "title": title,
@@ -178,7 +188,8 @@ def get_uiline(operator: str***REMOVED***:
                     # Append the cell text to the data list
                     single_row.append(cell.text.strip(***REMOVED******REMOVED***
 
-            if datetime.strptime(single_row[4***REMOVED***, "%Y-%m-%d"***REMOVED*** == datetime.today(***REMOVED***:
+            date_to_check = datetime.strptime(single_row[4***REMOVED***, "%Y-%m-%d"***REMOVED***
+            if within_one_month(date_to_check***REMOVED***:
                 data.append({key: value for key, value in zip(keys, single_row***REMOVED******REMOVED******REMOVED***
 
         if len(data***REMOVED*** > 0:
@@ -213,8 +224,9 @@ def get_ictr(operator: str***REMOVED***:
 
             if None in [title, date***REMOVED***:
                 continue
-
-            if datetime.strptime(date, "%Y.%m.%d"***REMOVED*** == datetime.today(***REMOVED***:
+            
+            date_to_check = datetime.strptime(date, "%Y.%m.%d"***REMOVED***
+            if within_one_month(date_to_check***REMOVED***:
                 data.append(
                     {"title": title, "single_page_url": single_page_url, "date": date***REMOVED***
                 ***REMOVED***
@@ -252,8 +264,8 @@ def get_station_info(***REMOVED***:
 
                 # Extract the fifth column (index 4***REMOVED***
                 updated_date = columns[4***REMOVED***.text.strip(***REMOVED***
-
-        if datetime.strptime(updated_date, "%Y.%m.%d."***REMOVED*** == datetime.today(***REMOVED***:
+        date_to_check = datetime.strptime(updated_date, "%Y.%m.%d."***REMOVED***
+        if within_one_month(date_to_check***REMOVED***:
             post_message(channel_name, f"*** 실시간 역 정보 변동 사항 ***"***REMOVED***
             post_message(channel_name, f"파일 이름: <{realtime_station_info_url***REMOVED***|{file_name***REMOVED***>"***REMOVED***
             
