@@ -1,6 +1,7 @@
 # 운행사 공지사항 URL
 channel_name = "운행사공지사항"
 operator_list = [
+    "서울교통공사",
     "한국철도공사",
     "신분당선주식회사",
     "공항철도주식회사",
@@ -8,6 +9,7 @@ operator_list = [
     "인천교통공사",
 ]
 operator_url_dict = {
+    "서울교통공사": "http://www.seoulmetro.co.kr/kr/board.do?menuIdx=546",
     "한국철도공사": "https://www.letskorail.com/ebizcom/cs/guide/guide/guide11.do",
     "신분당선주식회사": "https://www.shinbundang.co.kr/index.jsp?open_main=3&open_sub1=1&open_sub2=0&pageID=%2Fnotice%2Fnotice1.jsp&flag=",
     "공항철도주식회사": "https://www.arex.or.kr/content.do?url=&menuNo=MN201504230000000001&contentNo=&clientLocale=ko_KR&clientDevice=Normal",
