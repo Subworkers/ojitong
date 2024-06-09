@@ -1,9 +1,10 @@
 import requests
 from datetime import datetime
 from bs4 import BeautifulSoup
+from urllib.parse import urlparse, parse_qs
 
 # import json
-from data.const import (
+from workflow.const import (
     slack_url,
     slack_header,
     channel_name,
@@ -32,6 +33,13 @@ from data.const import (
 #             }
 #         ]
 
+from datetime import datetime, timedelta
+
+def within_one_month(date_to_check):
+    current_date = datetime.today()
+    one_week_ago = current_date - timedelta(weeks=4)
+    return one_week_ago <= date_to_check <= current_date
+
 
 def post_message(channel: str, text: str):
     try:
@@ -46,6 +54,47 @@ def post_message(channel: str, text: str):
         print(response)
     except Exception as e:
         print(e)
+
+
+def get_seoulmetro(operator: str):
+    response = requests.get(operator_url_dict[operator], headers=stn_static_schedule_headers)
+
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.text, "html.parser")
+        tr_elements = soup.find_all("tr")
+
+        data = []
+        for tr in tr_elements:
+            if tr.find("th"):
+                continue
+            td_elements = tr.find_all("td")
+
+            no = tr.find('td', class_='num t-disn bd1')
+            title = tr.find('td', class_='td-lf bd2').find('a').get_text()
+            link = tr.find('td', class_='td-lf bd2').find('a')['href']
+            parsed_url = urlparse(link)
+            query_params = parse_qs(parsed_url.query)
+            bbs_idx = query_params.get('bbsIdx', [None])[0]
+            date = tr.find('td', class_='t-disn bd5').get_text()
+
+            date_to_check = datetime.strptime(date, "%Y-%m-%d")
+            if within_one_month(date_to_check):
+                data.append(
+                    {
+                        "no": no, # post number
+                        "title": title,
+                        "date": date,
+                        "link": f"{operator_url_dict[operator]}&bbsIdx={bbs_idx}"
+                    }
+                )
+
+        if len(data) > 0:
+            post_message(channel_name, f"*** {operator} 운행사 공지사항 ***")
+            for idx, d in enumerate(data):
+                post_message(
+                    channel_name,
+                    f"{idx + 1}. 제목: <{d['link']}|{d['title']}> 날짜: {d['date']}",
+                )
 
 
 def get_letskorail(operator: str):
@@ -63,7 +112,8 @@ def get_letskorail(operator: str):
             td_elements = tr.find_all("td")
             single_row = {key: td.text for key, td in zip(keys, td_elements)}
 
-            if datetime.strptime(single_row["date"], "%Y-%m-%d") == datetime.today():
+            date_to_check = datetime.strptime(single_row["date"], "%Y-%m-%d")
+            if within_one_month(date_to_check):
                 data.append(single_row)
 
         if len(data) > 0:
@@ -91,8 +141,9 @@ def get_shinbundang(operator: str):
             title = title_elem.text.strip()
             view_no = title_elem["href"].split("'")[1]
             date = row.find_all("td", class_="ac")[-2].text
-
-            if datetime.strptime(date, "%Y-%m-%d") == datetime.today():
+            
+            date_to_check = datetime.strptime(date, "%Y-%m-%d")
+            if within_one_month(date_to_check):
                 data.append(
                     {
                         "view_no": view_no,
@@ -133,7 +184,8 @@ def get_arex(operator: str):
             data_no = title_tag["data-no"]
             date = cols[2].get_text(strip=True)
 
-            if datetime.strptime(date, "%Y-%m-%d") == datetime.today():
+            date_to_check = datetime.strptime(date, "%Y-%m-%d")
+            if within_one_month(date_to_check):
                 data.append(
                     {
                         "title": title,
@@ -178,7 +230,8 @@ def get_uiline(operator: str):
                     # Append the cell text to the data list
                     single_row.append(cell.text.strip())
 
-            if datetime.strptime(single_row[4], "%Y-%m-%d") == datetime.today():
+            date_to_check = datetime.strptime(single_row[4], "%Y-%m-%d")
+            if within_one_month(date_to_check):
                 data.append({key: value for key, value in zip(keys, single_row)})
 
         if len(data) > 0:
@@ -213,8 +266,9 @@ def get_ictr(operator: str):
 
             if None in [title, date]:
                 continue
-
-            if datetime.strptime(date, "%Y.%m.%d") == datetime.today():
+            
+            date_to_check = datetime.strptime(date, "%Y.%m.%d")
+            if within_one_month(date_to_check):
                 data.append(
                     {"title": title, "single_page_url": single_page_url, "date": date}
                 )
@@ -252,8 +306,8 @@ def get_station_info():
 
                 # Extract the fifth column (index 4)
                 updated_date = columns[4].text.strip()
-
-        if datetime.strptime(updated_date, "%Y.%m.%d.") == datetime.today():
+        date_to_check = datetime.strptime(updated_date, "%Y.%m.%d.")
+        if within_one_month(date_to_check):
             post_message(channel_name, f"*** 실시간 역 정보 변동 사항 ***")
             post_message(channel_name, f"파일 이름: <{realtime_station_info_url}|{file_name}>")
             

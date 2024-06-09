@@ -1,5 +1,6 @@
-from data.const import operator_list
+from workflow.const import operator_list
 from workflow.utils import (
+    get_seoulmetro,
     get_letskorail,
     get_shinbundang,
     get_arex,
@@ -11,7 +12,9 @@ from workflow.utils import (
 
 def main():
     for operator in operator_list:
-        if operator == "한국철도공사":
+        if operator == "서울교통공사":
+            get_seoulmetro(operator)
+        elif operator == "한국철도공사":
             get_letskorail(operator)
         elif operator == "신분당선주식회사":
             get_shinbundang(operator)
