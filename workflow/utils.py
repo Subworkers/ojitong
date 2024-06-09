@@ -1,6 +1,7 @@
 import requests
 from datetime import datetime
 from bs4 import BeautifulSoup
+from urllib.parse import urlparse, parse_qs
 
 # import json
 from workflow.const import (
@@ -53,6 +54,47 @@ def post_message(channel: str, text: str***REMOVED***:
         print(response***REMOVED***
     except Exception as e:
         print(e***REMOVED***
+
+
+def get_seoulmetro(operator: str***REMOVED***:
+    response = requests.get(operator_url_dict[operator***REMOVED***, headers=stn_static_schedule_headers***REMOVED***
+
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.text, "html.parser"***REMOVED***
+        tr_elements = soup.find_all("tr"***REMOVED***
+
+        data = [***REMOVED***
+        for tr in tr_elements:
+            if tr.find("th"***REMOVED***:
+                continue
+            td_elements = tr.find_all("td"***REMOVED***
+
+            no = tr.find('td', class_='num t-disn bd1'***REMOVED***
+            title = tr.find('td', class_='td-lf bd2'***REMOVED***.find('a'***REMOVED***.get_text(***REMOVED***
+            link = tr.find('td', class_='td-lf bd2'***REMOVED***.find('a'***REMOVED***['href'***REMOVED***
+            parsed_url = urlparse(link***REMOVED***
+            query_params = parse_qs(parsed_url.query***REMOVED***
+            bbs_idx = query_params.get('bbsIdx', [None***REMOVED******REMOVED***[0***REMOVED***
+            date = tr.find('td', class_='t-disn bd5'***REMOVED***.get_text(***REMOVED***
+
+            date_to_check = datetime.strptime(date, "%Y-%m-%d"***REMOVED***
+            if within_one_month(date_to_check***REMOVED***:
+                data.append(
+                    {
+                        "no": no, # post number
+                        "title": title,
+                        "date": date,
+                        "link": f"{operator_url_dict[operator***REMOVED******REMOVED***&bbsIdx={bbs_idx***REMOVED***"
+                    ***REMOVED***
+                ***REMOVED***
+
+        if len(data***REMOVED*** > 0:
+            post_message(channel_name, f"*** {operator***REMOVED*** 운행사 공지사항 ***"***REMOVED***
+            for idx, d in enumerate(data***REMOVED***:
+                post_message(
+                    channel_name,
+                    f"{idx + 1***REMOVED***. 제목: <{d['link'***REMOVED******REMOVED***|{d['title'***REMOVED******REMOVED***> 날짜: {d['date'***REMOVED******REMOVED***",
+                ***REMOVED***
 
 
 def get_letskorail(operator: str***REMOVED***:
