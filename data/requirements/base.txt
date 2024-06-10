@@ -10,3 +10,10 @@ pandas==1.5.2
 cryptography==39.0.2
 jsonlines==4.0.0
 rouge==1.0.1
+newspaper3k==0.2.8
+selenium==4.21.0
+lxml_html_clean==0.1.1
+openai==1.33.0
+langchain==0.2.3
+langchain_openai==0.1.8
+rouge-score==0.1.2
