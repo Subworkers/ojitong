@@ -1,10 +1,29 @@
 FROM jupyter/base-notebook:python-3.11
 
 ARG CURRENT_PATH
+ARG CHROME_VERSION=125.0.6422.141
 
 USER root
 
-RUN apt-get -y update --fix-missing
+RUN apt-get -y update
+
+# google chrome
+RUN apt-get install -y wget gnupg --no-install-recommends && \
+rm -rf /var/lib/apt/lists/*
+RUN wget -qO- https://dl.google.com/linux/linux_signing_key.pub | apt-key add - && \
+echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list && \
+apt-get update && \
+apt-get install -y google-chrome-stable --no-install-recommends && \
+rm -rf /var/lib/apt/lists/*
+
+# google chrome driver
+RUN apt-get -y update && apt-get upgrade -y && apt-get install -y unzip
+RUN apt-get install -y libnss3
+RUN wget https://storage.googleapis.com/chrome-for-testing-public/$CHROME_VERSION/linux64/chromedriver-linux64.zip && \
+unzip chromedriver-linux64.zip && \ 
+cp chromedriver-linux64/chromedriver /usr/local/bin/ && \ 
+chmod +x /usr/local/bin/chromedriver
+
 RUN apt-get install -y git
 RUN apt-get install -y curl
 #only in windows & wsl env
