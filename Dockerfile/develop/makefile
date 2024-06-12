@@ -1,6 +1,6 @@
 # common
 PYTHON_VERSION=py311
-RELEASE_VERSION=v0.1.0
+RELEASE_VERSION=v0.1.1
 AWS_ECR_REPO_ENDPOINT_URL=public.ecr.aws/v5d5z1j6/subworkers/ojitong
 
 # dev image
@@ -75,6 +75,8 @@ push.runner.base:
 
 # make start
 start:
+	# mac os arm64 --> rosetta 허용
+	# softwareupdate --install-rosetta --agree-to-license
 	$(ENV_PREFIX***REMOVED*** docker-compose -f $(DOCKERCOMPOSE_FILE_PATH***REMOVED*** up $(DEV_CONTAINER_NAME***REMOVED*** -d
 	$(RUNNER_ENV_PREFIX***REMOVED*** docker-compose -f $(RUNNER_BASE_DOCKERCOMPOSE_FILE_PATH***REMOVED*** up $(RUNNER_BASE_CONTAINER_NAME***REMOVED*** -d
 	
