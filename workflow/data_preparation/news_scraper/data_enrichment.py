@@ -1,7 +1,10 @@
 # 3***REMOVED*** 결측 혹은 오류 데이터 보강
 
 import pandas as pd
-import numpy as np
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException, TimeoutException, WebDriverException
 
 def fetch_article_text(driver, url***REMOVED***:
     driver.get(url***REMOVED***
@@ -37,10 +40,6 @@ def update_article_texts(df, driver***REMOVED***:
     return df
 
 def update_kbs_titles(df, driver***REMOVED***:
-    from selenium.webdriver.support.ui import WebDriverWait
-    from selenium.webdriver.support import expected_conditions as EC
-    from selenium.webdriver.common.by import By
-    from selenium.common.exceptions import NoSuchElementException, TimeoutException, WebDriverException
 
     for index, row in df.iterrows(***REMOVED***:
         if row['title'***REMOVED*** == 'KBS 뉴스':

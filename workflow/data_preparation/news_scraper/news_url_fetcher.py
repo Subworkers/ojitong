@@ -1,10 +1,6 @@
 # 1***REMOVED*** 뉴스 URL 가져오기
 import requests
 from datetime import datetime
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from bs4 import BeautifulSoup
 
 def format_today_date(today_datetime: datetime***REMOVED***:
