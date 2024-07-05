@@ -26,6 +26,7 @@ chmod +x /usr/local/bin/chromedriver
 
 RUN apt-get install -y git
 RUN apt-get install -y curl
+RUN apt-get install -y jq
 #only in windows & wsl env
 #RUN apt-get install -y python3-pip
 
