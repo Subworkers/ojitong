@@ -1,18 +1,18 @@
 import json
 import jsonlines
+from datetime import datetime
 from pathlib import Path
-
 from data import DATA_BASE_PATH
-from data.const import POST_TYPE, DATA_TYPE
+from data.const import PostType, DataType
 
 RESOURCES_PATH = Path(DATA_BASE_PATH) / "bench"
 
-def save_bench_data_jsonl_by_types(post_type: POST_TYPE, data_type: DATA_TYPE, samples: list):
+def save_bench_data_jsonl_by_types(post_type: PostType, data_type: DataType, samples: list):
     filename = set_filename_by_data_type(data_type)
     file_path = RESOURCES_PATH / post_type.value / filename
     write_samples_by_line(file_path, samples)
 
-def set_filename_by_data_type(data_type: DATA_TYPE):
+def set_filename_by_data_type(data_type: DataType):
     filename = f"{data_type.value}.jsonl"
     return filename
 
@@ -28,6 +28,12 @@ def read_samples_by_line(file):
         for line in f.iter():
             yield json.loads(line)
 
-def generate_s3_path(bucket_name="ojitong", prefix="news_data", extension=".csv", today_datetime: datetime=datetime.today()):
+def generate_s3_path(
+    bucket_name="ojitong",
+    deploy_phase="local",
+    prefix="news_data",
+    extension=".csv",
+    today_datetime: datetime=datetime.today()
+):
     timestamp = today_datetime.strftime("%Y%m%d_%H%M%S")
     return f"s3://{bucket_name}/{deploy_phase}/{prefix}/{timestamp}{extension}"
