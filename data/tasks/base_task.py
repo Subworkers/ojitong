@@ -27,26 +27,3 @@ class BaseTask(ABC***REMOVED***:
     def execute(self, *args, **kwargs***REMOVED***:
         raise NotImplementedError(***REMOVED***
 
-
-class WritingTask(BaseTask, ABC***REMOVED***:
-    def __init__(self, category***REMOVED***:
-        self.category = category
-        self.prompt_template = self._build_prompt(***REMOVED***
-        self.parser = self._build_parser(***REMOVED***
-        self.chain = self._build_chain(***REMOVED***
-
-***REMOVED***
-    def _build_prompt(self***REMOVED***:
-        pass
-
-***REMOVED***
-    def _build_parser(self***REMOVED***:
-        pass
-
-***REMOVED***
-    def _build_chain(self***REMOVED***:
-        pass
-
-***REMOVED***
-    def execute(self, content***REMOVED***:
-        pass
