@@ -9,8 +9,6 @@ class BaseTask(ABC):
         self.chain = self._build_chain()
 
     def _build_llm(self):
-        import os
-        os.environ["OPENAI_API_KEY"] = "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"
         return ChatOpenAI(model="gpt-4o")
     
     @abstractmethod
