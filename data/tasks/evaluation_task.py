@@ -5,7 +5,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 
 from data.tasks.base_task import BaseTask
-from data.templates.evaluation_template import QGQATemplate
+from data.templates.evaluation_template import GEvalEvaluationTemplate, QGQATemplate
 
 class PairwiseEvaluationTask(BaseTask, ABC):
     def __init__(self):
@@ -21,6 +21,22 @@ class PairwiseEvaluationTask(BaseTask, ABC):
 
     @abstractmethod
     def execute(self, hypothesis, reference):
+        pass
+
+class SingleAnswerEvaluationTask(BaseTask, ABC):
+    def __init__(self):
+        super().__init__()
+
+    def _build_llm(self):
+        import os
+        os.environ["OPENAI_API_KEY"] = "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"
+        return ChatOpenAI(model="gpt-3.5-turbo-0125")
+
+    def _build_chain(self):
+        return self.prompt_template | self.llm | self.parser
+
+    @abstractmethod
+    def execute(self, hypothesis):
         pass
 
 
@@ -78,7 +94,6 @@ class QGQAEvaluationTask(PairwiseEvaluationTask):
         conparison_results = self.evaluate_answers(answers_news, answers_blog, detailed_answers_news, detailed_answers_blog)
         return conparison_results
 
-
     def evaluate_answers(self, answers_news, answers_blog, detailed_answers_news, detailed_answers_blog):
         # Comparing answers from news and blog
         comparison_results = {
@@ -115,3 +130,66 @@ class AnswerExtractionParser(BaseOutputParser):
         pattern = pattern_detailed_answer.format(question_number, answer_number)
         match = re.search(pattern, text, re.DOTALL)
         return match.group(1).strip() if match else ""
+
+
+# Consistency 항목 제외 SingleAnswer Evaluation 방식이지만,
+# GEvalEvaluationTask 단일 클래스로 가져가기 위해 PairwiseEvaluationTask 사용
+class GEvalEvaluationTask(PairwiseEvaluationTask):
+    def _build_template(self):
+        prompts = GEvalEvaluationTemplate().prompt
+        return {
+            key: ChatPromptTemplate.from_messages([
+                ("system", value),
+                ("user", "{input}")
+            ])
+            for key, value in prompts.items()
+        }
+
+    def _build_parser(self):
+        return ScoreReasonParser()
+
+    def _build_chain(self):
+        return {
+            "chain_qg": self.prompt_template["qg"] | self.llm,
+            "chain_qa_reference": self.prompt_template["qa_reference"] | self.llm | self.parser,
+            "chain_qa_hypothesis": self.prompt_template["qa_hypothesis"] | self.llm | self.parser
+        }
+
+    def execute(self, hypothesis, reference):
+        geval_results = {}
+
+        # Consistency Score - pairwise evaluation 수행
+        consistency_eval_result = self.chain["Consistency"].invoke({"input": f"blog content: {hypothesis}\n article reference: {reference}"})
+        geval_results["Consistency"] = consistency_eval_result
+
+        # Consistency 제외 항목 - SingleAnswer evaluation 수행
+        geval_results.update({
+            aspect: self.chain[aspect].invoke({"input": f"blog content: {hypothesis}"}) 
+            for aspect in self.templates.keys()
+        })
+        
+        return geval_results
+
+
+from langchain_core.output_parsers import BaseOutputParser
+from langchain_core.exceptions import OutputParserException
+import re
+
+class ScoreReasonParser(BaseOutputParser):
+    def parse(self, text):
+        pattern_score = re.compile(r"Scores \(SCORE ONLY\): (\d+)")
+        pattern_reason = re.compile(r"Reason:(.*)", re.DOTALL)
+
+        match_score = re.search(pattern_score, text)
+        match_reason = re.search(pattern_reason, text)
+
+        if match_score:
+            score = int(match_score.group(1))
+        else:
+            raise OutputParserException("No Scores (SCORE ONLY) score found in the response.", f"Received: {text}.")
+
+        if match_reason:
+            reason = match_reason.group(1).strip()
+        else:
+            reason = "Unknown reason"
+        return {'score': score, 'reason': reason}
