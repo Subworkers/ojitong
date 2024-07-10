@@ -25,7 +25,7 @@ class PairwiseEvaluationTask(BaseTask, ABC):
 
 
 class MetricBasedEvaluationTask(PairwiseEvaluationTask):
-    def _build_prompt(self):
+    def _build_template(self):
         # Define summarizing prompt
         return ChatPromptTemplate.from_messages([
             ("system", "You are talented at summarizing text without missing any important information."),
@@ -45,8 +45,8 @@ class MetricBasedEvaluationTask(PairwiseEvaluationTask):
 
 
 class QGQAEvaluationTask(PairwiseEvaluationTask):
-    def _build_prompt(self):
-        return QGQATemplate().get_prompt()
+    def _build_template(self):
+        return QGQATemplate().template
 
     def _build_parser(self):
         return AnswerExtractionParser()

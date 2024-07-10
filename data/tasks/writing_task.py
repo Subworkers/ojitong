@@ -18,9 +18,9 @@ class WritingTask(BaseTask):
         super().__init__()
 
     def _generate_prompt_content(self, category):
-        return WritingTemplateFactory.get_template(category).get_prompt()
+        return WritingTemplateFactory.get_prompt(category)
     
-    def _build_prompt(self):
+    def _build_template(self):
         return ChatPromptTemplate.from_template(self.prompt_content)
 
     def _build_parser(self):
@@ -40,7 +40,7 @@ class ChainingTask(WritingTask):
         super().__init__(category)
         self.chain_list = self._define_chain_list()
 
-    def _build_prompt(self):
+    def _build_template(self):
         return ChatPromptTemplate(template=self.prompt_content, messages=[
             SystemMessagePromptTemplate.from_template(self._system_message()),
             MessagesPlaceholder(variable_name="chat_history"),
