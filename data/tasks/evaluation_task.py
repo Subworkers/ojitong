@@ -5,7 +5,7 @@ from rouge_score import rouge_scorer
 from langchain_core.prompts import ChatPromptTemplate
 
 from data.tasks.base_task import BaseTask
-from data.templates.evaluation_template import QGQATemplate
+from data.templates.evaluation_template import GEvalEvaluationTemplate, QGQATemplate
 
 class PairwiseEvaluationTask(BaseTask, ABC***REMOVED***:
     def __init__(self***REMOVED***:
@@ -21,6 +21,22 @@ class PairwiseEvaluationTask(BaseTask, ABC***REMOVED***:
 
 ***REMOVED***
     def execute(self, hypothesis, reference***REMOVED***:
+        pass
+
+class SingleAnswerEvaluationTask(BaseTask, ABC***REMOVED***:
+    def __init__(self***REMOVED***:
+        super(***REMOVED***.__init__(***REMOVED***
+
+    def _build_llm(self***REMOVED***:
+        import os
+        os.environ["OPENAI_API_KEY"***REMOVED*** = "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"
+        return ChatOpenAI(model="gpt-3.5-turbo-0125"***REMOVED***
+
+    def _build_chain(self***REMOVED***:
+        return self.prompt_template | self.llm | self.parser
+
+***REMOVED***
+    def execute(self, hypothesis***REMOVED***:
         pass
 
 
@@ -78,7 +94,6 @@ class QGQAEvaluationTask(PairwiseEvaluationTask***REMOVED***:
         conparison_results = self.evaluate_answers(answers_news, answers_blog, detailed_answers_news, detailed_answers_blog***REMOVED***
         return conparison_results
 
-
     def evaluate_answers(self, answers_news, answers_blog, detailed_answers_news, detailed_answers_blog***REMOVED***:
         # Comparing answers from news and blog
         comparison_results = {
@@ -115,3 +130,66 @@ class AnswerExtractionParser(BaseOutputParser***REMOVED***:
         pattern = pattern_detailed_answer.format(question_number, answer_number***REMOVED***
         match = re.search(pattern, text, re.DOTALL***REMOVED***
         return match.group(1***REMOVED***.strip(***REMOVED*** if match else ""
+
+
+# Consistency 항목 제외 SingleAnswer Evaluation 방식이지만,
+# GEvalEvaluationTask 단일 클래스로 가져가기 위해 PairwiseEvaluationTask 사용
+class GEvalEvaluationTask(PairwiseEvaluationTask***REMOVED***:
+    def _build_template(self***REMOVED***:
+        prompts = GEvalEvaluationTemplate(***REMOVED***.prompt
+        return {
+            key: ChatPromptTemplate.from_messages([
+                ("system", value***REMOVED***,
+                ("user", "{input***REMOVED***"***REMOVED***
+            ***REMOVED******REMOVED***
+            for key, value in prompts.items(***REMOVED***
+        ***REMOVED***
+
+    def _build_parser(self***REMOVED***:
+        return ScoreReasonParser(***REMOVED***
+
+    def _build_chain(self***REMOVED***:
+        return {
+            "chain_qg": self.prompt_template["qg"***REMOVED*** | self.llm,
+            "chain_qa_reference": self.prompt_template["qa_reference"***REMOVED*** | self.llm | self.parser,
+            "chain_qa_hypothesis": self.prompt_template["qa_hypothesis"***REMOVED*** | self.llm | self.parser
+        ***REMOVED***
+
+    def execute(self, hypothesis, reference***REMOVED***:
+        geval_results = {***REMOVED***
+
+        # Consistency Score - pairwise evaluation 수행
+        consistency_eval_result = self.chain["Consistency"***REMOVED***.invoke({"input": f"blog content: {hypothesis***REMOVED***\n article reference: {reference***REMOVED***"***REMOVED******REMOVED***
+        geval_results["Consistency"***REMOVED*** = consistency_eval_result
+
+        # Consistency 제외 항목 - SingleAnswer evaluation 수행
+        geval_results.update({
+            aspect: self.chain[aspect***REMOVED***.invoke({"input": f"blog content: {hypothesis***REMOVED***"***REMOVED******REMOVED*** 
+            for aspect in self.templates.keys(***REMOVED***
+        ***REMOVED******REMOVED***
+        
+        return geval_results
+
+
+from langchain_core.output_parsers import BaseOutputParser
+from langchain_core.exceptions import OutputParserException
+import re
+
+class ScoreReasonParser(BaseOutputParser***REMOVED***:
+    def parse(self, text***REMOVED***:
+        pattern_score = re.compile(r"Scores \(SCORE ONLY\***REMOVED***: (\d+***REMOVED***"***REMOVED***
+        pattern_reason = re.compile(r"Reason:(.****REMOVED***", re.DOTALL***REMOVED***
+
+        match_score = re.search(pattern_score, text***REMOVED***
+        match_reason = re.search(pattern_reason, text***REMOVED***
+
+        if match_score:
+            score = int(match_score.group(1***REMOVED******REMOVED***
+        else:
+            raise OutputParserException("No Scores (SCORE ONLY***REMOVED*** score found in the response.", f"Received: {text***REMOVED***."***REMOVED***
+
+        if match_reason:
+            reason = match_reason.group(1***REMOVED***.strip(***REMOVED***
+        else:
+            reason = "Unknown reason"
+        return {'score': score, 'reason': reason***REMOVED***
