@@ -25,7 +25,7 @@ class PairwiseEvaluationTask(BaseTask, ABC***REMOVED***:
 
 
 class MetricBasedEvaluationTask(PairwiseEvaluationTask***REMOVED***:
-    def _build_prompt(self***REMOVED***:
+    def _build_template(self***REMOVED***:
         # Define summarizing prompt
         return ChatPromptTemplate.from_messages([
             ("system", "You are talented at summarizing text without missing any important information."***REMOVED***,
@@ -45,8 +45,8 @@ class MetricBasedEvaluationTask(PairwiseEvaluationTask***REMOVED***:
 
 
 class QGQAEvaluationTask(PairwiseEvaluationTask***REMOVED***:
-    def _build_prompt(self***REMOVED***:
-        return QGQATemplate(***REMOVED***.get_prompt(***REMOVED***
+    def _build_template(self***REMOVED***:
+        return QGQATemplate(***REMOVED***.template
 
     def _build_parser(self***REMOVED***:
         return AnswerExtractionParser(***REMOVED***

@@ -2,12 +2,23 @@ from data.templates.base_template import BaseTemplate
 from langchain_core.prompts import ChatPromptTemplate
 
 class QGQATemplate(BaseTemplate***REMOVED***:
-    def get_prompt(self***REMOVED***:
-        return {
-            "qg": self._generate_questions_prompt(***REMOVED***,
-            "qa_reference": self._answer_questions_from_news_prompt(***REMOVED***,
-            "qa_hypothesis": self._answer_questions_from_blog_prompt(***REMOVED***
+    @property
+    def template(self***REMOVED***:
+        if not hasattr(self, '_template'***REMOVED***:
+            self._template = {
+                "qg": self._generate_questions_prompt(***REMOVED***,
+                "qa_reference": self._answer_questions_from_news_prompt(***REMOVED***,
+                "qa_hypothesis": self._answer_questions_from_blog_prompt(***REMOVED***
+            ***REMOVED***
+            self._template = {key: self.clean_whitespace_template(value***REMOVED*** for key, value in self._template.items(***REMOVED******REMOVED***
+        return self._template
+
+    def clean_whitespace_template(self, prompt_template***REMOVED***:
+        cleaned_messages = [
+            (role, self.clean_whitespace(message***REMOVED******REMOVED***
+            for role, message in prompt_template.messages
         ***REMOVED***
+        return ChatPromptTemplate.from_messages(cleaned_messages***REMOVED***
 
     def _generate_questions_prompt(self***REMOVED***:
         return ChatPromptTemplate.from_messages([

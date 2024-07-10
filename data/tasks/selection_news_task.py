@@ -3,7 +3,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from typing import List
 
 class SelectionNewsTask(BaseTask***REMOVED***:
-    def _build_prompt(self***REMOVED***:
+    def _build_template(self***REMOVED***:
         prompt = """
         해당 기사 중에서 핵심 주제가 지하철 파업, 지연, 연착, 사고, 노선 연장인 기사들만 뽑아서 행 인덱스 번호만 [,***REMOVED***로 구분해서 나열해줘:
         {titles***REMOVED***
