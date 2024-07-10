@@ -62,20 +62,31 @@ class QGQAEvaluationTask(PairwiseEvaluationTask):
         # 프롬프트 1을 통해 질문 생성
         questions = self.chain["chain_qg"].invoke({"input": news_content})
         # 프롬프트 2를 통해 뉴스 기반 답변 생성
-        answers_news = self.chain["chain_qa_reference"].invoke({"input": news_content, "question": questions})
+        answers_news = self.chain["chain_qa_reference"].invoke({"input": news_content, "question": questions.content})
+        detailed_answers_news = [
+            self.parser.extract_detailed_answer(questions.content, i+1, ans)
+            for i, ans in enumerate(answers_news)
+        ]
         # 프롬프트 3을 통해 블로그 기반 답변 생성
-        answers_blog = self.chain["chain_qa_hypothesis"].invoke({"input": blog_content, "question": questions})
+        answers_blog = self.chain["chain_qa_hypothesis"].invoke({"input": blog_content, "question": questions.content})
+        detailed_answers_blog = [
+            self.parser.extract_detailed_answer(questions.content, i+1, ans)
+            for i, ans in enumerate(answers_blog)
+        ]
 
         # 결과 비교 및 평가
-        return self.evaluate_answers(answers_news, answers_blog)
+        conparison_results = self.evaluate_answers(answers_news, answers_blog, detailed_answers_news, detailed_answers_blog)
+        return conparison_results
 
-    def evaluate_answers(self, answers_news, answers_blog):
+
+    def evaluate_answers(self, answers_news, answers_blog, detailed_answers_news, detailed_answers_blog):
         # Comparing answers from news and blog
         comparison_results = {
-            'date': answers_news[0] == answers_blog[0],
-            'line': answers_news[1] == answers_blog[1]
+            'date_comparison': answers_news[0] == answers_blog[0],
+            'line_comparison': answers_news[1] == answers_blog[1],
+            'news_details': f"<뉴스> 발생일시: {detailed_answers_news[0]}, 발생노선: {detailed_answers_news[1]}",
+            'blog_details': f"<블로그> 발생일시: {detailed_answers_blog[0]}, 발생노선: {detailed_answers_blog[1]}"
         }
-
         return comparison_results
 
 
@@ -85,12 +96,22 @@ from langchain_core.exceptions import OutputParserException
 class AnswerExtractionParser(BaseOutputParser):
     def parse(self, text):
         # Using findall to extract all matches of the pattern
-        pattern = re.compile(r"Answer\d+: (\d+)번")
         try:
-            indices = re.findall(pattern, text)
+            answers = self.extract_answer(text)
         except ValueError:
             raise OutputParserException(
-                "CommaSeparatedIndexParser expected comma-separated integers. "
-                "Received: {text}."
+                "CommaSeparatedIndexParser expected comma-separated integers. ",
+                f"Received: {text}."
             )
-        return indices
+        return answers
+
+    def extract_answer(self, text):
+        pattern_answer = re.compile(r"Answer\d+: (\d+)번")
+        return re.findall(pattern_answer, text)
+
+    def extract_detailed_answer(self, text, question_number, answer_number):
+        # 주어진 질문 번호와 답변 번호에 대해 상세한 답변을 추출
+        pattern_detailed_answer = "Question{}: .*?\\({}\\)\\s*(.*?)(?=\\(|\\.)"
+        pattern = pattern_detailed_answer.format(question_number, answer_number)
+        match = re.search(pattern, text, re.DOTALL)
+        return match.group(1).strip() if match else ""
