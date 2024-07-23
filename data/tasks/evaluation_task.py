@@ -150,22 +150,21 @@ class GEvalEvaluationTask(PairwiseEvaluationTask***REMOVED***:
 
     def _build_chain(self***REMOVED***:
         return {
-            "chain_qg": self.prompt_template["qg"***REMOVED*** | self.llm,
-            "chain_qa_reference": self.prompt_template["qa_reference"***REMOVED*** | self.llm | self.parser,
-            "chain_qa_hypothesis": self.prompt_template["qa_hypothesis"***REMOVED*** | self.llm | self.parser
+            key: prompt_template | self.llm | self.parser
+            for key, prompt_template in self.prompt_template.items(***REMOVED***
         ***REMOVED***
 
     def execute(self, hypothesis, reference***REMOVED***:
         geval_results = {***REMOVED***
 
         # Consistency Score - pairwise evaluation 수행
-        consistency_eval_result = self.chain["Consistency"***REMOVED***.invoke({"input": f"blog content: {hypothesis***REMOVED***\n article reference: {reference***REMOVED***"***REMOVED******REMOVED***
+        consistency_eval_result = self.chain["Consistency"***REMOVED***.invoke({"input": f"article reference: {reference***REMOVED***\n blog content: {hypothesis***REMOVED***"***REMOVED******REMOVED***
         geval_results["Consistency"***REMOVED*** = consistency_eval_result
 
         # Consistency 제외 항목 - SingleAnswer evaluation 수행
         geval_results.update({
             aspect: self.chain[aspect***REMOVED***.invoke({"input": f"blog content: {hypothesis***REMOVED***"***REMOVED******REMOVED*** 
-            for aspect in self.templates.keys(***REMOVED***
+            for aspect in self.prompt_template.keys(***REMOVED*** if aspect != "Consistency"
         ***REMOVED******REMOVED***
         
         return geval_results
@@ -177,8 +176,8 @@ import re
 
 class ScoreReasonParser(BaseOutputParser***REMOVED***:
     def parse(self, text***REMOVED***:
-        pattern_score = re.compile(r"Scores \(SCORE ONLY\***REMOVED***: (\d+***REMOVED***"***REMOVED***
-        pattern_reason = re.compile(r"Reason:(.****REMOVED***", re.DOTALL***REMOVED***
+        pattern_score = re.compile(r"Score: (\d+***REMOVED***"***REMOVED***
+        pattern_reason = re.compile(r"Reason: (.****REMOVED***", re.DOTALL***REMOVED***
 
         match_score = re.search(pattern_score, text***REMOVED***
         match_reason = re.search(pattern_reason, text***REMOVED***
