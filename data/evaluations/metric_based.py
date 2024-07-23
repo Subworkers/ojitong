@@ -30,5 +30,5 @@ def evaluate_post_metric_based(category, blog_post):
     
     # ROUGE Recall 계산
     recall_score = compute_rouge_recall_per_keyword(refs, blog_post)
-    print(f"{post_type}에 대한 평균 ROUGE Recall 점수: {recall_score}")
-    return keyword_recall
+    print(f"{category} 범주에 대한 평균 ROUGE Recall 점수: {recall_score}")
+    return recall_score
