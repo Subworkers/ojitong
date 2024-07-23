@@ -14,11 +14,6 @@ class BaseTemplate(ABC):
         # prompt content 문자열 반환
         pass
 
-    @abstractmethod
-    def template(self):
-        # prompt template 객체 반환
-        pass
-
-    def clean_whitespace(text):
+    def clean_whitespace(self, text):
         # Strip whitespace from the start and end of the text, then replace multiple spaces with a single space
         return re.sub(r'\s+', ' ', text.strip())
