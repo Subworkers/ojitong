@@ -3,25 +3,24 @@ from langchain_core.prompts import ChatPromptTemplate
 
 class QGQATemplate(BaseTemplate):
     @property
-    def template(self):
-        if not hasattr(self, '_template'):
-            self._template = {
+    def prompt(self):
+        if not hasattr(self, '_prompt'):
+            self._prompt = {
                 "qg": self._generate_questions_prompt(),
                 "qa_reference": self._answer_questions_from_news_prompt(),
                 "qa_hypothesis": self._answer_questions_from_blog_prompt()
             }
-            self._template = {key: self.clean_whitespace_template(value) for key, value in self._template.items()}
-        return self._template
+            self._prompt = {key: self.clean_whitespace_prompt_set(value) for key, value in self._prompt.items()}
+        return self._prompt
 
-    def clean_whitespace_template(self, prompt_template):
-        cleaned_messages = [
-            (role, self.clean_whitespace(message))
-            for role, message in prompt_template.messages
-        ]
-        return ChatPromptTemplate.from_messages(cleaned_messages)
+    def clean_whitespace_prompt_set(self, prompt_set):
+        roles, messages = zip(*prompt_set)
+        cleaned_messages = map(self.clean_whitespace, messages)
+        return list(zip(roles, cleaned_messages))
 
     def _generate_questions_prompt(self):
-        return ChatPromptTemplate.from_messages([
+        # prompt_set: (role, message)
+        return [
             ("system", "You are an AI trained to generate insightful questions from a given article."),
             ("user", """
                 1. Read the article about current Seoul subway news.
@@ -49,10 +48,10 @@ class QGQATemplate(BaseTemplate):
                 Hint2: {{}}
                 """
             )
-        ])
+        ]
 
     def _answer_questions_from_news_prompt(self):
-        return ChatPromptTemplate.from_messages([
+        return [
             ("system", "You read a news article and answer a question accurately based on what you read."), # 페르소나 부여
             ("user", """
                 You read a news article like this:
@@ -70,10 +69,10 @@ class QGQATemplate(BaseTemplate):
                 Questions: {question}
             """),
             ("system", "Template(MUST FOLLOW): Answer1: {{answer_1}}번, Answer2: {{answer_2}}번")
-        ])
+        ]
 
     def _answer_questions_from_blog_prompt(self):
-        return ChatPromptTemplate.from_messages([
+        return [
             ("system", "You read a blog article and answer a question accurately based on what you read."), # 페르소나 부여
             ("user", """
                 You read a blog article like this:
@@ -91,10 +90,10 @@ class QGQATemplate(BaseTemplate):
                 Questions: {question}
             """),
             ("system", """"Template(MUST FOLLOW): Answer1: {{answer_1}}번, Answer2: {{answer_2}}번""")
-        ])
+        ]
 
 
-class GEvalEvaluationTemplate:
+class GEvalEvaluationTemplate(BaseTemplate):
     @property
     def prompt(self):
         if not hasattr(self, '_prompt'):
