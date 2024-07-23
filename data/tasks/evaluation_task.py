@@ -150,22 +150,21 @@ class GEvalEvaluationTask(PairwiseEvaluationTask):
 
     def _build_chain(self):
         return {
-            "chain_qg": self.prompt_template["qg"] | self.llm,
-            "chain_qa_reference": self.prompt_template["qa_reference"] | self.llm | self.parser,
-            "chain_qa_hypothesis": self.prompt_template["qa_hypothesis"] | self.llm | self.parser
+            key: prompt_template | self.llm | self.parser
+            for key, prompt_template in self.prompt_template.items()
         }
 
     def execute(self, hypothesis, reference):
         geval_results = {}
 
         # Consistency Score - pairwise evaluation 수행
-        consistency_eval_result = self.chain["Consistency"].invoke({"input": f"blog content: {hypothesis}\n article reference: {reference}"})
+        consistency_eval_result = self.chain["Consistency"].invoke({"input": f"article reference: {reference}\n blog content: {hypothesis}"})
         geval_results["Consistency"] = consistency_eval_result
 
         # Consistency 제외 항목 - SingleAnswer evaluation 수행
         geval_results.update({
             aspect: self.chain[aspect].invoke({"input": f"blog content: {hypothesis}"}) 
-            for aspect in self.templates.keys()
+            for aspect in self.prompt_template.keys() if aspect != "Consistency"
         })
         
         return geval_results
@@ -177,8 +176,8 @@ import re
 
 class ScoreReasonParser(BaseOutputParser):
     def parse(self, text):
-        pattern_score = re.compile(r"Scores \(SCORE ONLY\): (\d+)")
-        pattern_reason = re.compile(r"Reason:(.*)", re.DOTALL)
+        pattern_score = re.compile(r"Score: (\d+)")
+        pattern_reason = re.compile(r"Reason: (.*)", re.DOTALL)
 
         match_score = re.search(pattern_score, text)
         match_reason = re.search(pattern_reason, text)
