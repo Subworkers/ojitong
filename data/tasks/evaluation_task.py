@@ -12,9 +12,7 @@ class PairwiseEvaluationTask(BaseTask, ABC***REMOVED***:
         super(***REMOVED***.__init__(***REMOVED***
 
     def _build_llm(self***REMOVED***:
-        import os
-        os.environ["OPENAI_API_KEY"***REMOVED*** = "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"
-        return ChatOpenAI(model="gpt-3.5-turbo-0125"***REMOVED***
+        return ChatOpenAI(model="gpt-4o-mini"***REMOVED***
 
     def _build_chain(self***REMOVED***:
         return self.prompt_template | self.llm | self.parser
@@ -28,9 +26,7 @@ class SingleAnswerEvaluationTask(BaseTask, ABC***REMOVED***:
         super(***REMOVED***.__init__(***REMOVED***
 
     def _build_llm(self***REMOVED***:
-        import os
-        os.environ["OPENAI_API_KEY"***REMOVED*** = "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"
-        return ChatOpenAI(model="gpt-3.5-turbo-0125"***REMOVED***
+        return ChatOpenAI(model="gpt-4o-mini"***REMOVED***
 
     def _build_chain(self***REMOVED***:
         return self.prompt_template | self.llm | self.parser
@@ -62,7 +58,11 @@ class MetricBasedEvaluationTask(PairwiseEvaluationTask***REMOVED***:
 
 class QGQAEvaluationTask(PairwiseEvaluationTask***REMOVED***:
     def _build_template(self***REMOVED***:
-        return QGQATemplate(***REMOVED***.template
+        prompts = QGQATemplate(***REMOVED***.prompt
+        return {
+            key: ChatPromptTemplate.from_messages(value***REMOVED*** 
+            for key, value in prompts.items(***REMOVED***
+        ***REMOVED***
 
     def _build_parser(self***REMOVED***:
         return AnswerExtractionParser(***REMOVED***

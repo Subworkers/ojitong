@@ -3,25 +3,24 @@ from langchain_core.prompts import ChatPromptTemplate
 
 class QGQATemplate(BaseTemplate***REMOVED***:
     @property
-    def template(self***REMOVED***:
-        if not hasattr(self, '_template'***REMOVED***:
-            self._template = {
+    def prompt(self***REMOVED***:
+        if not hasattr(self, '_prompt'***REMOVED***:
+            self._prompt = {
                 "qg": self._generate_questions_prompt(***REMOVED***,
                 "qa_reference": self._answer_questions_from_news_prompt(***REMOVED***,
                 "qa_hypothesis": self._answer_questions_from_blog_prompt(***REMOVED***
             ***REMOVED***
-            self._template = {key: self.clean_whitespace_template(value***REMOVED*** for key, value in self._template.items(***REMOVED******REMOVED***
-        return self._template
+            self._prompt = {key: self.clean_whitespace_prompt_set(value***REMOVED*** for key, value in self._prompt.items(***REMOVED******REMOVED***
+        return self._prompt
 
-    def clean_whitespace_template(self, prompt_template***REMOVED***:
-        cleaned_messages = [
-            (role, self.clean_whitespace(message***REMOVED******REMOVED***
-            for role, message in prompt_template.messages
-        ***REMOVED***
-        return ChatPromptTemplate.from_messages(cleaned_messages***REMOVED***
+    def clean_whitespace_prompt_set(self, prompt_set***REMOVED***:
+        roles, messages = zip(*prompt_set***REMOVED***
+        cleaned_messages = map(self.clean_whitespace, messages***REMOVED***
+        return list(zip(roles, cleaned_messages***REMOVED******REMOVED***
 
     def _generate_questions_prompt(self***REMOVED***:
-        return ChatPromptTemplate.from_messages([
+        # prompt_set: (role, message***REMOVED***
+        return [
             ("system", "You are an AI trained to generate insightful questions from a given article."***REMOVED***,
             ("user", """
                 1. Read the article about current Seoul subway news.
@@ -49,10 +48,10 @@ class QGQATemplate(BaseTemplate***REMOVED***:
                 Hint2: {{***REMOVED******REMOVED***
                 """
             ***REMOVED***
-        ***REMOVED******REMOVED***
+        ***REMOVED***
 
     def _answer_questions_from_news_prompt(self***REMOVED***:
-        return ChatPromptTemplate.from_messages([
+        return [
             ("system", "You read a news article and answer a question accurately based on what you read."***REMOVED***, # 페르소나 부여
             ("user", """
                 You read a news article like this:
@@ -70,10 +69,10 @@ class QGQATemplate(BaseTemplate***REMOVED***:
                 Questions: {question***REMOVED***
             """***REMOVED***,
             ("system", "Template(MUST FOLLOW***REMOVED***: Answer1: {{answer_1***REMOVED******REMOVED***번, Answer2: {{answer_2***REMOVED******REMOVED***번"***REMOVED***
-        ***REMOVED******REMOVED***
+        ***REMOVED***
 
     def _answer_questions_from_blog_prompt(self***REMOVED***:
-        return ChatPromptTemplate.from_messages([
+        return [
             ("system", "You read a blog article and answer a question accurately based on what you read."***REMOVED***, # 페르소나 부여
             ("user", """
                 You read a blog article like this:
@@ -91,10 +90,10 @@ class QGQATemplate(BaseTemplate***REMOVED***:
                 Questions: {question***REMOVED***
             """***REMOVED***,
             ("system", """"Template(MUST FOLLOW***REMOVED***: Answer1: {{answer_1***REMOVED******REMOVED***번, Answer2: {{answer_2***REMOVED******REMOVED***번"""***REMOVED***
-        ***REMOVED******REMOVED***
+        ***REMOVED***
 
 
-class GEvalEvaluationTemplate:
+class GEvalEvaluationTemplate(BaseTemplate***REMOVED***:
     @property
     def prompt(self***REMOVED***:
         if not hasattr(self, '_prompt'***REMOVED***:

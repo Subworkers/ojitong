@@ -14,11 +14,6 @@ class BaseTemplate(ABC***REMOVED***:
         # prompt content 문자열 반환
         pass
 
-***REMOVED***
-    def template(self***REMOVED***:
-        # prompt template 객체 반환
-        pass
-
-    def clean_whitespace(text***REMOVED***:
+    def clean_whitespace(self, text***REMOVED***:
         # Strip whitespace from the start and end of the text, then replace multiple spaces with a single space
         return re.sub(r'\s+', ' ', text.strip(***REMOVED******REMOVED***
