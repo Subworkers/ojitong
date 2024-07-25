@@ -35,7 +35,7 @@ class DelayTemplate(BaseTemplate):
                 '지하철 온다'는 단 한 번의 터치로 자신의 위치에서 가장 가까운 지하철 역의 실시간 정보를 제공합니다.\n
                 🔽 지하철 온다 소개 보러가기\nhttps://blog.naver.com/subway__onda/223258646349
             """
-        return self.clean_whitespace(self.prompt)
+        return self.clean_whitespace(self._prompt)
 
 
 class StrikeTemplate(BaseTemplate):
@@ -60,7 +60,7 @@ class StrikeTemplate(BaseTemplate):
                 '지하철 온다'는 단 한 번의 터치로 자신의 위치에서 가장 가까운 지하철 역의 실시간 정보를 제공합니다.\n
                 🔽 지하철 온다 소개 보러가기\nhttps://blog.naver.com/subway__onda/223258646349
             """
-        return self.clean_whitespace(self.prompt)
+        return self.clean_whitespace(self._prompt)
 
 class TimetableTemplate(BaseTemplate):
     @property
@@ -81,7 +81,7 @@ class TimetableTemplate(BaseTemplate):
                 '지하철 온다'는 단 한 번의 터치로 자신의 위치에서 가장 가까운 지하철 역의 실시간 정보를 제공합니다.\n
                 🔽 지하철 온다 소개 보러가기\nhttps://blog.naver.com/subway__onda/223258646349
             """
-        return self.clean_whitespace(self.prompt)
+        return self.clean_whitespace(self._prompt)
 
 class ExtensionTemplate(BaseTemplate):
     @property
@@ -103,5 +103,5 @@ class ExtensionTemplate(BaseTemplate):
                 '지하철 온다'는 단 한 번의 터치로 자신의 위치에서 가장 가까운 지하철 역의 실시간 정보를 제공합니다.\n
                 🔽 지하철 온다 소개 보러가기\nhttps://blog.naver.com/subway__onda/223258646349
             """
-        return self.clean_whitespace(self.prompt)
+        return self.clean_whitespace(self._prompt)
 
