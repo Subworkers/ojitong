@@ -53,3 +53,4 @@ class EvaluationHandler:
         for key, value in eval_results.items():
             self.df.at[self.content_index, key] = value
         self.df.to_csv(self.s3_path, index=False)
+        print(f"*** Data saved to {self.s3_path} ***")
