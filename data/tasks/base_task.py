@@ -4,7 +4,7 @@ from langchain_openai import ChatOpenAI
 class BaseTask(ABC):
     def __init__(self):
         self.llm = self._build_llm()
-        self.prompt_template = self._build_prompt()
+        self.prompt_template = self._build_template()
         self.parser = self._build_parser()
         self.chain = self._build_chain()
 
@@ -12,7 +12,7 @@ class BaseTask(ABC):
         return ChatOpenAI(model="gpt-4o")
     
     @abstractmethod
-    def _build_prompt(self):
+    def _build_template(self):
         raise NotImplementedError()
 
     @abstractmethod
