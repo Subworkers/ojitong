@@ -53,3 +53,4 @@ class EvaluationHandler:
         for key, value in eval_results.items(***REMOVED***:
             self.df.at[self.content_index, key***REMOVED*** = value
         self.df.to_csv(self.s3_path, index=False***REMOVED***
+        print(f"*** Data saved to {self.s3_path***REMOVED*** ***"***REMOVED***
