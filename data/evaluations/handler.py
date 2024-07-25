@@ -45,7 +45,7 @@ class EvaluationHandler:
 
         if len(failed_fields):
             self.eval_results["eval_geval_failed_reason"] = f"{', '.join(failed_fields.keys())}"
-            print(f"Fail (GEVAL Eval): ", self.eval_results)
+            print(f"Fail (GEVAL Eval): ", self.failed_fields.keys())
             self._update_dataframe(self.eval_results)
             sys.exit(1)
 
