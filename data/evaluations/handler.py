@@ -3,7 +3,6 @@ from data.evaluations.metric_based import (
     post_type_by_category,
     refs_by_post_type
 ***REMOVED***
-import sys
 
 class EvaluationHandler:
     def __init__(self, df, content_index, s3_path***REMOVED***:
@@ -17,15 +16,13 @@ class EvaluationHandler:
             post_type = post_type_by_category.get(category, PostType.DELAY***REMOVED***
             refs = refs_by_post_type.get(post_type, [***REMOVED******REMOVED***
             self.eval_results["eval_metric_rouge1_reason"***REMOVED*** = f"문장에 {', '.join(refs***REMOVED******REMOVED***가 포함되지 않았습니다."
-            print(f"Fail (Metric keyword: {metric_result***REMOVED******REMOVED***"***REMOVED***
             self._update_dataframe(self.eval_results***REMOVED***
-            sys.exit(1***REMOVED***
+            raise Exception(f"Fail (Metric keyword: {metric_result***REMOVED******REMOVED***"***REMOVED***
 
     def check_qgqa_eval(self, date_comparison, line_comparison***REMOVED***:
         if not date_comparison or not line_comparison:
-            print(f"Fail (QGQA Eval***REMOVED***: ", self.eval_results***REMOVED***
             self._update_dataframe(self.eval_results***REMOVED***
-            sys.exit(1***REMOVED***
+            raise Exception(f"Fail (QGQA Eval***REMOVED***: ", self.eval_results***REMOVED***
 
     def check_geval_eval(self, geval_results***REMOVED***:
         # 임계값 사전 정의
@@ -45,9 +42,8 @@ class EvaluationHandler:
 
         if len(failed_fields***REMOVED***:
             self.eval_results["eval_geval_failed_reason"***REMOVED*** = f"{', '.join(failed_fields.keys(***REMOVED******REMOVED******REMOVED***"
-            print(f"Fail (GEVAL Eval***REMOVED***: ", self.failed_fields.keys(***REMOVED******REMOVED***
             self._update_dataframe(self.eval_results***REMOVED***
-            sys.exit(1***REMOVED***
+            raise Exception(f"Fail (GEVAL Eval***REMOVED***: ", self.failed_fields.keys(***REMOVED******REMOVED***
 
     def _update_dataframe(self, eval_results***REMOVED***:
         for key, value in eval_results.items(***REMOVED***:
