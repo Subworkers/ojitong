@@ -3,7 +3,6 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import OpenAI
 from data.tasks.base_task import BaseTask
 from data.templates.image_generation_template import ImageTemplate
-from data.processors import S3ImageUploader
 
 class ImageGenerationTask(BaseTask***REMOVED***:
     def __init__(self***REMOVED***:
@@ -11,7 +10,6 @@ class ImageGenerationTask(BaseTask***REMOVED***:
         self.dalle_wrapper = DallEAPIWrapper(
             model="dall-e-3",
         ***REMOVED***
-        self.s3_image_uploader = S3ImageUploader(***REMOVED***
 
     def _build_llm(self***REMOVED***:
         return OpenAI(***REMOVED***
