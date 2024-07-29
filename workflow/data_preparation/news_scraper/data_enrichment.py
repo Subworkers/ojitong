@@ -1,5 +1,6 @@
 # 3) 결측 혹은 오류 데이터 보강
-
+import re
+from dateutil import parser
 import pandas as pd
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -40,7 +41,6 @@ def update_article_texts(df, driver):
     return df
 
 def update_kbs_titles(df, driver):
-
     for index, row in df.iterrows():
         if row['title'] == 'KBS 뉴스':
             try:
@@ -53,3 +53,36 @@ def update_kbs_titles(df, driver):
             except (NoSuchElementException, TimeoutException, WebDriverException) as e:
                 print(f"An error occurred for URL {row['url']}: {e}")
     return df
+
+# publish_date의 null 값 처리
+def fill_missing_publish_dates(df, driver):
+    date_classes = ['news-date', 'date-repoter', 'article_info', 'article_byline', 'dates', 'dateFont', 'article_date']
+    for index, row in df.iterrows():
+        if pd.isna(row['publish_date']):
+            url = row['url']
+            try:
+                driver.get(url)
+            except TimeoutException:
+                print(f"Timeout while loading {url}")
+                continue
+            
+            publish_date = None
+            for date_class in date_classes:
+                date_elements = driver.find_elements(By.CLASS_NAME, date_class)
+                for date_element in date_elements:
+                    date_text = date_element.text
+                    numbers = re.findall(r'\d+', date_text)
+                    if len(numbers) >= 3:
+                        publish_date = f"{numbers[0]}-{numbers[1].zfill(2)}-{numbers[2].zfill(2)}"
+                        break
+                if publish_date:
+                    break
+            
+            if publish_date:
+                try:
+                    parsed_date = parser.parse(publish_date)
+                    df.at[index, 'publish_date'] = parsed_date
+                except ValueError as e:
+                    print(f"Error parsing date from {url}: {e}")
+    return df
+
