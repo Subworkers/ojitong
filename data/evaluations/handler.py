@@ -3,7 +3,6 @@ from data.evaluations.metric_based import (
     post_type_by_category,
     refs_by_post_type
 )
-import sys
 
 class EvaluationHandler:
     def __init__(self, df, content_index, s3_path):
@@ -17,15 +16,13 @@ class EvaluationHandler:
             post_type = post_type_by_category.get(category, PostType.DELAY)
             refs = refs_by_post_type.get(post_type, [])
             self.eval_results["eval_metric_rouge1_reason"] = f"문장에 {', '.join(refs)}가 포함되지 않았습니다."
-            print(f"Fail (Metric keyword: {metric_result})")
             self._update_dataframe(self.eval_results)
-            sys.exit(1)
+            raise Exception(f"Fail (Metric keyword: {metric_result})")
 
     def check_qgqa_eval(self, date_comparison, line_comparison):
         if not date_comparison or not line_comparison:
-            print(f"Fail (QGQA Eval): ", self.eval_results)
             self._update_dataframe(self.eval_results)
-            sys.exit(1)
+            raise Exception(f"Fail (QGQA Eval): ", self.eval_results)
 
     def check_geval_eval(self, geval_results):
         # 임계값 사전 정의
@@ -45,9 +42,8 @@ class EvaluationHandler:
 
         if len(failed_fields):
             self.eval_results["eval_geval_failed_reason"] = f"{', '.join(failed_fields.keys())}"
-            print(f"Fail (GEVAL Eval): ", self.failed_fields.keys())
             self._update_dataframe(self.eval_results)
-            sys.exit(1)
+            raise Exception(f"Fail (GEVAL Eval): ", self.failed_fields.keys())
 
     def _update_dataframe(self, eval_results):
         for key, value in eval_results.items():
