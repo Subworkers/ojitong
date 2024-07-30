@@ -45,4 +45,4 @@ class NumberListParser(BaseOutputParser[List[int]]):
 
     @property
     def _type(self) -> str:
-        return "comma_separated_index_parser"
+        return "number_list_parser"
