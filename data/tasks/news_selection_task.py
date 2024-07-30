@@ -33,11 +33,12 @@ class NumberListParser(BaseOutputParser[List[int]]):
     """Custom parser for extracting a list of integers from text."""
 
     def parse(self, text: str) -> list:
+        print(f"Parser Received: {text}.", flush=True)
         try:
             indices = [int(index) for index in re.findall(r'\d+', text)]
         except ValueError:
             raise OutputParserException(
-                "CommaSeparatedIndexParser expected comma-separated integers. "
+                "NumberListParser expected number list. "
                 f"Received: {text}."
             )
         return indices
