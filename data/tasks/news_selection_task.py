@@ -36,7 +36,7 @@ class CommaSeparatedIndexParser(BaseOutputParser[list***REMOVED******REMOVED***:
         except ValueError:
             raise OutputParserException(
                 "CommaSeparatedIndexParser expected comma-separated integers. "
-                "Received: {text***REMOVED***."
+                f"Received: {text***REMOVED***."
             ***REMOVED***
         return indices
 
