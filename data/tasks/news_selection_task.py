@@ -5,7 +5,8 @@ from typing import List
 class SelectionNewsTask(BaseTask):
     def _build_template(self):
         prompt = """
-        해당 기사 중에서 핵심 주제가 지하철 파업, 지연, 연착, 사고, 노선 연장인 기사들만 뽑아서 행 인덱스 번호만 [,]로 구분해서 나열해줘:
+        해당 기사 중에서 핵심 주제가 지하철 파업, 지연, 연착, 사고, 노선 연장인 기사들만 뽑아줘.
+        행 인덱스 번호만 ,로 구분해서 나열해줘.
         {titles}
         """
         return ChatPromptTemplate.from_template(prompt)
