@@ -1,7 +1,7 @@
 
 import io
 from PIL import Image, ImageDraw, ImageFont
-
+from data.processors.s3_image_uploader import S3ImageUploader
 
 class CardNewsCreator:
     def __init__(self, image_path, font_path, s3_path):
@@ -10,6 +10,7 @@ class CardNewsCreator:
         self.image = self._load_image(image_path)
         self.draw = ImageDraw.Draw(self.image)
         self.s3_path = s3_path
+        self.s3_image_uploader = S3ImageUploader()
 
     def _load_image(self, path):
         # 배경 이미지 로드
