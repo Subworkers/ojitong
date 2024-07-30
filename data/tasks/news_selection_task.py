@@ -1,6 +1,7 @@
 from data.tasks.base_task import BaseTask
 from langchain_core.prompts import ChatPromptTemplate
 from typing import List
+import re
 
 class SelectionNewsTask(BaseTask):
     def _build_template(self):
@@ -12,7 +13,7 @@ class SelectionNewsTask(BaseTask):
         return ChatPromptTemplate.from_template(prompt)
 
     def _build_parser(self):
-        return CommaSeparatedIndexParser()
+        return NumberListParser()
 
     def _build_chain(self):
         return self.prompt_template | self.llm | self.parser
@@ -28,12 +29,12 @@ class SelectionNewsTask(BaseTask):
 from langchain_core.output_parsers import BaseOutputParser
 from langchain_core.exceptions import OutputParserException
 
-class CommaSeparatedIndexParser(BaseOutputParser[list]):
-    """Custom parser for extracting indices from comma-separated strings."""
+class NumberListParser(BaseOutputParser[List[int]]):
+    """Custom parser for extracting a list of integers from text."""
 
     def parse(self, text: str) -> list:
         try:
-            indices = [int(index.strip()) for index in text.split(',')]
+            indices = [int(index) for index in re.findall(r'\d+', text)]
         except ValueError:
             raise OutputParserException(
                 "CommaSeparatedIndexParser expected comma-separated integers. "
