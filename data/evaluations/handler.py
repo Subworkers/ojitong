@@ -43,7 +43,7 @@ class EvaluationHandler:
         if len(failed_fields***REMOVED***:
             self.eval_results["eval_geval_failed_reason"***REMOVED*** = f"{', '.join(failed_fields.keys(***REMOVED******REMOVED******REMOVED***"
             self._update_dataframe(self.eval_results***REMOVED***
-            raise Exception(f"Fail (GEVAL Eval***REMOVED***: ", self.failed_fields.keys(***REMOVED******REMOVED***
+            raise Exception(f"Fail (GEVAL Eval***REMOVED***: ", failed_fields.keys(***REMOVED******REMOVED***
 
     def _update_dataframe(self, eval_results***REMOVED***:
         for key, value in eval_results.items(***REMOVED***:
