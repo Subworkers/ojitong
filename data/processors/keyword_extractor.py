@@ -3,26 +3,26 @@
 import re
 
 class KeywordExtractor:
-    def extract_info(self, content, category***REMOVED***:
-        clean_content = self._clean_text(content***REMOVED***
-        patterns = self._get_patterns(category***REMOVED***
+    def extract_info(self, content, category):
+        clean_content = self._clean_text(content)
+        patterns = self._get_patterns(category)
         return {
-            "date": self._extract_keywords_by_pattern(clean_content, patterns['date'***REMOVED******REMOVED***,
-            "line": self._extract_keywords_by_pattern(clean_content, patterns['line'***REMOVED******REMOVED***
-        ***REMOVED***
+            "date": self._extract_keywords_by_pattern(clean_content, patterns['date']),
+            "line": self._extract_keywords_by_pattern(clean_content, patterns['line'])
+        }
 
-    def _clean_text(self, text***REMOVED***:
-        text = re.sub(r'\*\*', '', text***REMOVED***
-        text = re.sub(r'\{\{|\***REMOVED***\***REMOVED***', '', text***REMOVED***
-        text = re.sub(r': ', '', text***REMOVED***
-        text = re.sub(r'- ', '', text***REMOVED***
+    def _clean_text(self, text):
+        text = re.sub(r'\*\*', '', text)
+        text = re.sub(r'\{\{|\}\}', '', text)
+        text = re.sub(r': ', '', text)
+        text = re.sub(r'- ', '', text)
         return text
 
-    def _get_patterns(self, category***REMOVED***:
+    def _get_patterns(self, category):
         base_patterns = {
             "date": "일시",
             "line": "노선"
-        ***REMOVED***
+        }
         category_patterns = {
             "지연": "지연/사고",
             "사고": "지연/사고",
@@ -30,19 +30,19 @@ class KeywordExtractor:
             "파업": "파업",
             "연장": "연장",
             "변경": "변경"
-        ***REMOVED***
+        }
 
         return {
             key: [
-                rf"{category_patterns.get(category, '변경'***REMOVED******REMOVED*** {suffix***REMOVED***\s*\n\s*(.+?***REMOVED***(?=\n\n|\n\s*{{|\n\s*\*\*|$***REMOVED***",
-                rf"{category_patterns.get(category, '변경'***REMOVED******REMOVED*** {suffix***REMOVED***\s*\n\s*(.+?***REMOVED***(?:\r?\n|$***REMOVED***",
-                rf"{category_patterns.get(category, '변경'***REMOVED******REMOVED*** {suffix***REMOVED***\s*(.+?***REMOVED***(?:\r?\n|$***REMOVED***"
-            ***REMOVED*** for key, suffix in base_patterns.items(***REMOVED***
-        ***REMOVED***
+                rf"{category_patterns.get(category, '변경')} {suffix}\s*\n\s*(.+?)(?=\n\n|\n\s*{{|\n\s*\*\*|$)",
+                rf"{category_patterns.get(category, '변경')} {suffix}\s*\n\s*(.+?)(?:\r?\n|$)",
+                rf"{category_patterns.get(category, '변경')} {suffix}\s*(.+?)(?:\r?\n|$)"
+            ] for key, suffix in base_patterns.items()
+        }
 
-    def _extract_keywords_by_pattern(self, content, patterns***REMOVED***:
+    def _extract_keywords_by_pattern(self, content, patterns):
         for pattern in patterns:
-            match = re.search(pattern, content, re.DOTALL***REMOVED***
+            match = re.search(pattern, content, re.DOTALL)
             if match:
-                return ', '.join([data.strip(***REMOVED*** for data in match.group(1***REMOVED***.split('\n'***REMOVED******REMOVED******REMOVED***
+                return ', '.join([data.strip() for data in match.group(1).split('\n')])
         return "정보 없음"

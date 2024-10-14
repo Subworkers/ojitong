@@ -7,7 +7,7 @@
 
 **`Knowledge Selection`**  
 
-- knowledge 선별 ( 프롬프트 엔지니어링 선정 ***REMOVED***
+- knowledge 선별 ( 프롬프트 엔지니어링 선정 )
 
 
 **`Knowledge Injection`**

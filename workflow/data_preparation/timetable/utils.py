@@ -17,7 +17,7 @@ from workflow.const import (
     ictr_single_page_front_url,
     realtime_station_info_url,
     stn_static_schedule_headers,
-***REMOVED***
+)
 
 # attachments = [
 #             {
@@ -28,20 +28,20 @@ from workflow.const import (
 #                         "text": "Press me",
 #                         "type": "button",
 #                         "value": "button_pressed"
-#                     ***REMOVED***
-#                 ***REMOVED***
-#             ***REMOVED***
-#         ***REMOVED***
+#                     }
+#                 ]
+#             }
+#         ]
 
 from datetime import datetime, timedelta
 
-def within_one_month(date_to_check***REMOVED***:
-    current_date = datetime.today(***REMOVED***
-    one_week_ago = current_date - timedelta(weeks=4***REMOVED***
+def within_one_month(date_to_check):
+    current_date = datetime.today()
+    one_week_ago = current_date - timedelta(weeks=4)
     return one_week_ago <= date_to_check <= current_date
 
 
-def post_message(channel: str, text: str***REMOVED***:
+def post_message(channel: str, text: str):
     try:
         response = requests.post(
             slack_url,
@@ -49,267 +49,267 @@ def post_message(channel: str, text: str***REMOVED***:
             data={
                 "channel": channel,
                 "text": text,
-            ***REMOVED***,  # , "attachments": json.dumps(attachments***REMOVED***
-        ***REMOVED***
-        print(response***REMOVED***
+            },  # , "attachments": json.dumps(attachments)
+        )
+        print(response)
     except Exception as e:
-        print(e***REMOVED***
+        print(e)
 
 
-def get_seoulmetro(operator: str***REMOVED***:
-    response = requests.get(operator_url_dict[operator***REMOVED***, headers=stn_static_schedule_headers***REMOVED***
+def get_seoulmetro(operator: str):
+    response = requests.get(operator_url_dict[operator], headers=stn_static_schedule_headers)
 
     if response.status_code == 200:
-        soup = BeautifulSoup(response.text, "html.parser"***REMOVED***
-        tr_elements = soup.find_all("tr"***REMOVED***
+        soup = BeautifulSoup(response.text, "html.parser")
+        tr_elements = soup.find_all("tr")
 
-        data = [***REMOVED***
+        data = []
         for tr in tr_elements:
-            if tr.find("th"***REMOVED***:
+            if tr.find("th"):
                 continue
-            td_elements = tr.find_all("td"***REMOVED***
+            td_elements = tr.find_all("td")
 
-            no = tr.find('td', class_='num t-disn bd1'***REMOVED***
-            title = tr.find('td', class_='td-lf bd2'***REMOVED***.find('a'***REMOVED***.get_text(***REMOVED***
-            link = tr.find('td', class_='td-lf bd2'***REMOVED***.find('a'***REMOVED***['href'***REMOVED***
-            parsed_url = urlparse(link***REMOVED***
-            query_params = parse_qs(parsed_url.query***REMOVED***
-            bbs_idx = query_params.get('bbsIdx', [None***REMOVED******REMOVED***[0***REMOVED***
-            date = tr.find('td', class_='t-disn bd5'***REMOVED***.get_text(***REMOVED***
+            no = tr.find('td', class_='num t-disn bd1')
+            title = tr.find('td', class_='td-lf bd2').find('a').get_text()
+            link = tr.find('td', class_='td-lf bd2').find('a')['href']
+            parsed_url = urlparse(link)
+            query_params = parse_qs(parsed_url.query)
+            bbs_idx = query_params.get('bbsIdx', [None])[0]
+            date = tr.find('td', class_='t-disn bd5').get_text()
 
-            date_to_check = datetime.strptime(date, "%Y-%m-%d"***REMOVED***
-            if within_one_month(date_to_check***REMOVED***:
+            date_to_check = datetime.strptime(date, "%Y-%m-%d")
+            if within_one_month(date_to_check):
                 data.append(
                     {
                         "no": no, # post number
                         "title": title,
                         "date": date,
-                        "link": f"{operator_url_dict[operator***REMOVED******REMOVED***&bbsIdx={bbs_idx***REMOVED***"
-                    ***REMOVED***
-                ***REMOVED***
+                        "link": f"{operator_url_dict[operator]}&bbsIdx={bbs_idx}"
+                    }
+                )
 
-        if len(data***REMOVED*** > 0:
-            post_message(channel_name, f"*** {operator***REMOVED*** 운행사 공지사항 ***"***REMOVED***
-            for idx, d in enumerate(data***REMOVED***:
+        if len(data) > 0:
+            post_message(channel_name, f"*** {operator} 운행사 공지사항 ***")
+            for idx, d in enumerate(data):
                 post_message(
                     channel_name,
-                    f"{idx + 1***REMOVED***. 제목: <{d['link'***REMOVED******REMOVED***|{d['title'***REMOVED******REMOVED***> 날짜: {d['date'***REMOVED******REMOVED***",
-                ***REMOVED***
+                    f"{idx + 1}. 제목: <{d['link']}|{d['title']}> 날짜: {d['date']}",
+                )
 
 
-def get_letskorail(operator: str***REMOVED***:
-    response = requests.get(operator_url_dict[operator***REMOVED******REMOVED***
+def get_letskorail(operator: str):
+    response = requests.get(operator_url_dict[operator])
 
     if response.status_code == 200:
-        soup = BeautifulSoup(response.text, "html.parser"***REMOVED***
-        tr_elements = soup.find_all("tr"***REMOVED***
+        soup = BeautifulSoup(response.text, "html.parser")
+        tr_elements = soup.find_all("tr")
 
-        data = [***REMOVED***
+        data = []
         for tr in tr_elements:
-            keys = ["no", "type", "title", "button", "date"***REMOVED***
-            if tr.find("th"***REMOVED***:
+            keys = ["no", "type", "title", "button", "date"]
+            if tr.find("th"):
                 continue
-            td_elements = tr.find_all("td"***REMOVED***
-            single_row = {key: td.text for key, td in zip(keys, td_elements***REMOVED******REMOVED***
+            td_elements = tr.find_all("td")
+            single_row = {key: td.text for key, td in zip(keys, td_elements)}
 
-            date_to_check = datetime.strptime(single_row["date"***REMOVED***, "%Y-%m-%d"***REMOVED***
-            if within_one_month(date_to_check***REMOVED***:
-                data.append(single_row***REMOVED***
+            date_to_check = datetime.strptime(single_row["date"], "%Y-%m-%d")
+            if within_one_month(date_to_check):
+                data.append(single_row)
 
-        if len(data***REMOVED*** > 0:
-            post_message(channel_name, f"*** {operator***REMOVED*** 운행사 공지사항 ***"***REMOVED***
-            for idx, d in enumerate(data***REMOVED***:
+        if len(data) > 0:
+            post_message(channel_name, f"*** {operator} 운행사 공지사항 ***")
+            for idx, d in enumerate(data):
                 post_message(
                     channel_name,
-                    f"{idx + 1***REMOVED***. 제목: <{operator_url_dict[operator***REMOVED******REMOVED***|{d['title'***REMOVED******REMOVED***> 날짜: {d['date'***REMOVED******REMOVED***",
-                ***REMOVED***
+                    f"{idx + 1}. 제목: <{operator_url_dict[operator]}|{d['title']}> 날짜: {d['date']}",
+                )
 
     else:
-        print(f"Failed to fetch data from the URL. Status code: {response.status_code***REMOVED***"***REMOVED***
+        print(f"Failed to fetch data from the URL. Status code: {response.status_code}")
 
 
-def get_shinbundang(operator: str***REMOVED***:
-    response = requests.get(operator_url_dict[operator***REMOVED******REMOVED***
+def get_shinbundang(operator: str):
+    response = requests.get(operator_url_dict[operator])
 
     if response.status_code == 200:
-        soup = BeautifulSoup(response.text, "html.parser"***REMOVED***
-        rows = soup.tbody.find_all("tr"***REMOVED***
+        soup = BeautifulSoup(response.text, "html.parser")
+        rows = soup.tbody.find_all("tr")
 
-        data = [***REMOVED***
+        data = []
         for row in rows:
-            title_elem = row.find("td"***REMOVED***.find_next_sibling("td"***REMOVED***.find("a"***REMOVED***
-            title = title_elem.text.strip(***REMOVED***
-            view_no = title_elem["href"***REMOVED***.split("'"***REMOVED***[1***REMOVED***
-            date = row.find_all("td", class_="ac"***REMOVED***[-2***REMOVED***.text
+            title_elem = row.find("td").find_next_sibling("td").find("a")
+            title = title_elem.text.strip()
+            view_no = title_elem["href"].split("'")[1]
+            date = row.find_all("td", class_="ac")[-2].text
             
-            date_to_check = datetime.strptime(date, "%Y-%m-%d"***REMOVED***
-            if within_one_month(date_to_check***REMOVED***:
+            date_to_check = datetime.strptime(date, "%Y-%m-%d")
+            if within_one_month(date_to_check):
                 data.append(
                     {
                         "view_no": view_no,
                         "title": title,
                         "date": date,
-                    ***REMOVED***
-                ***REMOVED***
+                    }
+                )
 
-        if len(data***REMOVED*** > 0:
-            post_message(channel_name, f"*** {operator***REMOVED*** 운행사 공지사항 ***"***REMOVED***
-            for idx, d in enumerate(data***REMOVED***:
-                single_page_url = f"{shinbundang_single_page_front_url***REMOVED***{d['view_no'***REMOVED******REMOVED***{shinbundang_single_page_back_url***REMOVED***"
+        if len(data) > 0:
+            post_message(channel_name, f"*** {operator} 운행사 공지사항 ***")
+            for idx, d in enumerate(data):
+                single_page_url = f"{shinbundang_single_page_front_url}{d['view_no']}{shinbundang_single_page_back_url}"
                 post_message(
                     channel_name,
-                    f"{idx + 1***REMOVED***. 제목: <{single_page_url***REMOVED***|{d['title'***REMOVED******REMOVED***> 날짜: {d['date'***REMOVED******REMOVED***",
-                ***REMOVED***
+                    f"{idx + 1}. 제목: <{single_page_url}|{d['title']}> 날짜: {d['date']}",
+                )
 
     else:
-        print(f"Failed to fetch data from the URL. Status code: {response.status_code***REMOVED***"***REMOVED***
+        print(f"Failed to fetch data from the URL. Status code: {response.status_code}")
 
 
-def get_arex(operator: str***REMOVED***:
-    response = requests.get(operator_url_dict[operator***REMOVED******REMOVED***
+def get_arex(operator: str):
+    response = requests.get(operator_url_dict[operator])
 
     if response.status_code == 200:
-        soup = BeautifulSoup(response.text, "html.parser"***REMOVED***
-        table_div = soup.find("div", class_="table01 boardTable"***REMOVED***
-        tbody = table_div.find("tbody"***REMOVED***
-        rows = tbody.find_all("tr"***REMOVED***
+        soup = BeautifulSoup(response.text, "html.parser")
+        table_div = soup.find("div", class_="table01 boardTable")
+        tbody = table_div.find("tbody")
+        rows = tbody.find_all("tr")
 
-        data = [***REMOVED***
+        data = []
 
         for row in rows:
-            cols = row.find_all("td"***REMOVED***
+            cols = row.find_all("td")
 
-            title_tag = cols[1***REMOVED***.find("a", class_="detail_view"***REMOVED***
-            title = title_tag.get_text(strip=True***REMOVED***
-            data_no = title_tag["data-no"***REMOVED***
-            date = cols[2***REMOVED***.get_text(strip=True***REMOVED***
+            title_tag = cols[1].find("a", class_="detail_view")
+            title = title_tag.get_text(strip=True)
+            data_no = title_tag["data-no"]
+            date = cols[2].get_text(strip=True)
 
-            date_to_check = datetime.strptime(date, "%Y-%m-%d"***REMOVED***
-            if within_one_month(date_to_check***REMOVED***:
+            date_to_check = datetime.strptime(date, "%Y-%m-%d")
+            if within_one_month(date_to_check):
                 data.append(
                     {
                         "title": title,
                         "data_no": data_no,
                         "date": date,
-                    ***REMOVED***
-                ***REMOVED***
+                    }
+                )
 
-        if len(data***REMOVED*** > 0:
-            post_message(channel_name, f"*** {operator***REMOVED*** 운행사 공지사항 ***"***REMOVED***
-            for idx, d in enumerate(data***REMOVED***:
-                single_page_url = f"{arex_single_page_front_url***REMOVED***{d['data_no'***REMOVED******REMOVED***{arex_single_page_back_url***REMOVED***"
+        if len(data) > 0:
+            post_message(channel_name, f"*** {operator} 운행사 공지사항 ***")
+            for idx, d in enumerate(data):
+                single_page_url = f"{arex_single_page_front_url}{d['data_no']}{arex_single_page_back_url}"
                 post_message(
                     channel_name,
-                    f"{idx + 1***REMOVED***. 제목: <{single_page_url***REMOVED***|{d['title'***REMOVED******REMOVED***> 날짜: {d['date'***REMOVED******REMOVED***",
-                ***REMOVED***
+                    f"{idx + 1}. 제목: <{single_page_url}|{d['title']}> 날짜: {d['date']}",
+                )
 
     else:
-        print(f"Failed to fetch data from the URL. Status code: {response.status_code***REMOVED***"***REMOVED***
+        print(f"Failed to fetch data from the URL. Status code: {response.status_code}")
 
 
-def get_uiline(operator: str***REMOVED***:
-    response = requests.get(operator_url_dict[operator***REMOVED******REMOVED***
+def get_uiline(operator: str):
+    response = requests.get(operator_url_dict[operator])
 
     if response.status_code == 200:
-        soup = BeautifulSoup(response.text, "html.parser"***REMOVED***
-        rows = soup.tbody.find_all("tr"***REMOVED***
+        soup = BeautifulSoup(response.text, "html.parser")
+        rows = soup.tbody.find_all("tr")
 
-        data = [***REMOVED***  # create an empty list to store the data of the current row
-        keys = ["no", "single_page_url", "title", "writer", "date", "view"***REMOVED***
+        data = []  # create an empty list to store the data of the current row
+        keys = ["no", "single_page_url", "title", "writer", "date", "view"]
 
         for row in rows:
-            single_row = [***REMOVED***
-            for cell in row.find_all("td"***REMOVED***:
-                anchor = cell.find("a"***REMOVED***
+            single_row = []
+            for cell in row.find_all("td"):
+                anchor = cell.find("a")
                 if anchor:
                     # Append the href attribute to the data list
-                    single_row.append(anchor["href"***REMOVED******REMOVED***
+                    single_row.append(anchor["href"])
                     # Append the anchor text to the data list
-                    single_row.append(anchor.text.strip(***REMOVED******REMOVED***
+                    single_row.append(anchor.text.strip())
                 else:
                     # Append the cell text to the data list
-                    single_row.append(cell.text.strip(***REMOVED******REMOVED***
+                    single_row.append(cell.text.strip())
 
-            date_to_check = datetime.strptime(single_row[4***REMOVED***, "%Y-%m-%d"***REMOVED***
-            if within_one_month(date_to_check***REMOVED***:
-                data.append({key: value for key, value in zip(keys, single_row***REMOVED******REMOVED******REMOVED***
+            date_to_check = datetime.strptime(single_row[4], "%Y-%m-%d")
+            if within_one_month(date_to_check):
+                data.append({key: value for key, value in zip(keys, single_row)})
 
-        if len(data***REMOVED*** > 0:
-            post_message(channel_name, f"*** {operator***REMOVED*** 운행사 공지사항 ***"***REMOVED***
-            for idx, d in enumerate(data***REMOVED***:
-                single_page_url = uiline_single_page_front_url + d["single_page_url"***REMOVED***
+        if len(data) > 0:
+            post_message(channel_name, f"*** {operator} 운행사 공지사항 ***")
+            for idx, d in enumerate(data):
+                single_page_url = uiline_single_page_front_url + d["single_page_url"]
                 post_message(
                     channel_name,
-                    f"{idx + 1***REMOVED***. 제목: <{single_page_url***REMOVED***|{d['title'***REMOVED******REMOVED***> 날짜: {d['date'***REMOVED******REMOVED***",
-                ***REMOVED***
+                    f"{idx + 1}. 제목: <{single_page_url}|{d['title']}> 날짜: {d['date']}",
+                )
 
     else:
-        print(f"Failed to fetch data from the URL. Status code: {response.status_code***REMOVED***"***REMOVED***
+        print(f"Failed to fetch data from the URL. Status code: {response.status_code}")
 
 
-def get_ictr(operator: str***REMOVED***:
-    response = requests.get(operator_url_dict[operator***REMOVED******REMOVED***
+def get_ictr(operator: str):
+    response = requests.get(operator_url_dict[operator])
 
     if response.status_code == 200:
-        soup = BeautifulSoup(response.text, "html.parser"***REMOVED***
-        li_elements = soup.find("ul", class_="generalList"***REMOVED***.find_all("li"***REMOVED***
+        soup = BeautifulSoup(response.text, "html.parser")
+        li_elements = soup.find("ul", class_="generalList").find_all("li")
 
-        data = [***REMOVED***
+        data = []
 
         for li in li_elements:
-            title_element = li.find("p", class_="title"***REMOVED***
-            title = title_element.get_text(strip=True***REMOVED*** if title_element else None
-            single_page_url = title_element.find("a"***REMOVED***["href"***REMOVED*** if title_element else None
+            title_element = li.find("p", class_="title")
+            title = title_element.get_text(strip=True) if title_element else None
+            single_page_url = title_element.find("a")["href"] if title_element else None
 
-            date_element = li.find("li", {"title": "작성일"***REMOVED******REMOVED***
-            date = date_element.get_text(strip=True***REMOVED*** if date_element else None
+            date_element = li.find("li", {"title": "작성일"})
+            date = date_element.get_text(strip=True) if date_element else None
 
-            if None in [title, date***REMOVED***:
+            if None in [title, date]:
                 continue
             
-            date_to_check = datetime.strptime(date, "%Y.%m.%d"***REMOVED***
-            if within_one_month(date_to_check***REMOVED***:
+            date_to_check = datetime.strptime(date, "%Y.%m.%d")
+            if within_one_month(date_to_check):
                 data.append(
-                    {"title": title, "single_page_url": single_page_url, "date": date***REMOVED***
-                ***REMOVED***
+                    {"title": title, "single_page_url": single_page_url, "date": date}
+                )
 
-        if len(data***REMOVED*** > 0:
-            post_message(channel_name, f"*** {operator***REMOVED*** 운행사 공지사항 ***"***REMOVED***
-            for idx, d in enumerate(data***REMOVED***:
-                single_page_url = ictr_single_page_front_url + d["single_page_url"***REMOVED***
+        if len(data) > 0:
+            post_message(channel_name, f"*** {operator} 운행사 공지사항 ***")
+            for idx, d in enumerate(data):
+                single_page_url = ictr_single_page_front_url + d["single_page_url"]
                 post_message(
                     channel_name,
-                    f"{idx + 1***REMOVED***. 제목: <{single_page_url***REMOVED***|{d['title'***REMOVED******REMOVED***> 날짜: {d['date'***REMOVED******REMOVED***",
-                ***REMOVED***
+                    f"{idx + 1}. 제목: <{single_page_url}|{d['title']}> 날짜: {d['date']}",
+                )
 
     else:
-        print(f"Failed to fetch data from the URL. Status code: {response.status_code***REMOVED***"***REMOVED***
+        print(f"Failed to fetch data from the URL. Status code: {response.status_code}")
 
 
-def get_station_info(***REMOVED***:
+def get_station_info():
     response = requests.get(
         realtime_station_info_url, headers=stn_static_schedule_headers
-    ***REMOVED***
+    )
 
     if response.status_code == 200:
-        soup = BeautifulSoup(response.text, "html.parser"***REMOVED***
+        soup = BeautifulSoup(response.text, "html.parser")
 
-        table_rows = soup.find_all("tr"***REMOVED***
+        table_rows = soup.find_all("tr")
 
         for row in table_rows:
-            columns = row.find_all("td"***REMOVED***
+            columns = row.find_all("td")
 
             # Make sure that we have enough columns before trying to access them
-            if len(columns***REMOVED*** >= 6:
+            if len(columns) >= 6:
                 # Extract the file name from the title attribute of the span element within the third td
-                file_name = columns[2***REMOVED***.span["title"***REMOVED***
+                file_name = columns[2].span["title"]
 
-                # Extract the fifth column (index 4***REMOVED***
-                updated_date = columns[4***REMOVED***.text.strip(***REMOVED***
-        date_to_check = datetime.strptime(updated_date, "%Y.%m.%d."***REMOVED***
-        if within_one_month(date_to_check***REMOVED***:
-            post_message(channel_name, f"*** 실시간 역 정보 변동 사항 ***"***REMOVED***
-            post_message(channel_name, f"파일 이름: <{realtime_station_info_url***REMOVED***|{file_name***REMOVED***>"***REMOVED***
+                # Extract the fifth column (index 4)
+                updated_date = columns[4].text.strip()
+        date_to_check = datetime.strptime(updated_date, "%Y.%m.%d.")
+        if within_one_month(date_to_check):
+            post_message(channel_name, f"*** 실시간 역 정보 변동 사항 ***")
+            post_message(channel_name, f"파일 이름: <{realtime_station_info_url}|{file_name}>")
             
     else:
-        print(f"Failed to fetch data from the URL. Status code: {response.status_code***REMOVED***"***REMOVED***
+        print(f"Failed to fetch data from the URL. Status code: {response.status_code}")

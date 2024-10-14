@@ -1,29 +1,29 @@
-***REMOVED***
-***REMOVED***
+from abc import ABC, abstractmethod
+from langchain_openai import ChatOpenAI
 
-class BaseTask(ABC***REMOVED***:
-    def __init__(self***REMOVED***:
-        self.llm = self._build_llm(***REMOVED***
-        self.prompt_template = self._build_template(***REMOVED***
-        self.parser = self._build_parser(***REMOVED***
-        self.chain = self._build_chain(***REMOVED***
+class BaseTask(ABC):
+    def __init__(self):
+        self.llm = self._build_llm()
+        self.prompt_template = self._build_template()
+        self.parser = self._build_parser()
+        self.chain = self._build_chain()
 
-    def _build_llm(self***REMOVED***:
-        return ChatOpenAI(model="gpt-4o"***REMOVED***
+    def _build_llm(self):
+        return ChatOpenAI(model="gpt-4o")
     
-***REMOVED***
-    def _build_template(self***REMOVED***:
-        raise NotImplementedError(***REMOVED***
+    @abstractmethod
+    def _build_template(self):
+        raise NotImplementedError()
 
-***REMOVED***
-    def _build_parser(self***REMOVED***:
-        raise NotImplementedError(***REMOVED***
+    @abstractmethod
+    def _build_parser(self):
+        raise NotImplementedError()
 
-***REMOVED***
-    def _build_chain(self***REMOVED***:
-        raise NotImplementedError(***REMOVED***
+    @abstractmethod
+    def _build_chain(self):
+        raise NotImplementedError()
 
-***REMOVED***
-    def execute(self, *args, **kwargs***REMOVED***:
-        raise NotImplementedError(***REMOVED***
+    @abstractmethod
+    def execute(self, *args, **kwargs):
+        raise NotImplementedError()
 

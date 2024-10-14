@@ -1,11 +1,11 @@
 from enum import Enum, auto
 from typing import Literal
 
-class PostType(Enum***REMOVED***:
-    DELAY = auto(***REMOVED***
-    STRIKE = auto(***REMOVED***
-    TIMETABLE = auto(***REMOVED***
-    EXTENSION = auto(***REMOVED***
+class PostType(Enum):
+    DELAY = auto()
+    STRIKE = auto()
+    TIMETABLE = auto()
+    EXTENSION = auto()
     
-class DataType(Enum***REMOVED***:
+class DataType(Enum):
     SOURCE_KNOWLEDGE = "source"
