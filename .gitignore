@@ -22,3 +22,8 @@ ipython_config.py
 venv
 .DS_Store
 libs/
+
+# secret & credentials
+*.pem
+*/aws-credentials
+*/secrets
