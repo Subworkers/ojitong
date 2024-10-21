@@ -3,7 +3,7 @@ from langchain_core.prompts import (
     MessagesPlaceholder,
     SystemMessagePromptTemplate,
     HumanMessagePromptTemplate,
-***REMOVED***
+)
 from langchain_core.output_parsers import StrOutputParser
 from langchain.chains import LLMChain
 from langchain.memory import ConversationSummaryBufferMemory
@@ -11,43 +11,43 @@ from langchain.memory import ConversationSummaryBufferMemory
 from data.tasks.base_task import BaseTask
 from data.templates.writing_template import WritingTemplateFactory
 
-class WritingTask(BaseTask***REMOVED***:
-    def __init__(self, category***REMOVED***:
+class WritingTask(BaseTask):
+    def __init__(self, category):
         self.category = category
-        self.prompt_content = self._generate_prompt_content(self.category***REMOVED***
-        super(***REMOVED***.__init__(***REMOVED***
+        self.prompt_content = self._generate_prompt_content(self.category)
+        super().__init__()
 
-    def _generate_prompt_content(self, category***REMOVED***:
-        return WritingTemplateFactory.get_prompt(category***REMOVED***
+    def _generate_prompt_content(self, category):
+        return WritingTemplateFactory.get_prompt(category)
     
-    def _build_template(self***REMOVED***:
-        return ChatPromptTemplate.from_template(self.prompt_content***REMOVED***
+    def _build_template(self):
+        return ChatPromptTemplate.from_template(self.prompt_content)
 
-    def _build_parser(self***REMOVED***:
-        return StrOutputParser(***REMOVED***
+    def _build_parser(self):
+        return StrOutputParser()
     
-    def _build_chain(self***REMOVED***:
+    def _build_chain(self):
         return self.prompt_template | self.llm | self.parser
 
-    def execute(self, source_content***REMOVED***:
-        response = self.chain.invoke({"content": source_content***REMOVED******REMOVED***
+    def execute(self, source_content):
+        response = self.chain.invoke({"content": source_content})
         return response
 
 
-class ChainingTask(WritingTask***REMOVED***:
-    def __init__(self, category***REMOVED***:
+class ChainingTask(WritingTask):
+    def __init__(self, category):
         self._memory = None
-        super(***REMOVED***.__init__(category***REMOVED***
-        self.chain_list = self._define_chain_list(***REMOVED***
+        super().__init__(category)
+        self.chain_list = self._define_chain_list()
 
-    def _build_template(self***REMOVED***:
+    def _build_template(self):
         return ChatPromptTemplate(template=self.prompt_content, messages=[
-            SystemMessagePromptTemplate.from_template(self._system_message(***REMOVED******REMOVED***,
-            MessagesPlaceholder(variable_name="chat_history"***REMOVED***,
-            HumanMessagePromptTemplate.from_template(self._human_message(***REMOVED******REMOVED***
-        ***REMOVED******REMOVED***
+            SystemMessagePromptTemplate.from_template(self._system_message()),
+            MessagesPlaceholder(variable_name="chat_history"),
+            HumanMessagePromptTemplate.from_template(self._human_message())
+        ])
 
-    def _system_message(self***REMOVED***:
+    def _system_message(self):
         return """
         Objective:
         Learn subway information through chaining and use that information to write a coherent and informative blog post using a template.
@@ -65,44 +65,44 @@ class ChainingTask(WritingTask***REMOVED***:
         Communication Style:
         You use professional yet warm and easy-to-understand language.
         You emphasize the ability to explain things in a way that is accessible to all age groups.
-        Your blog posts should end with the forms -어요, -이에요/예요, -(이***REMOVED***여요, -(이***REMOVED***요.
+        Your blog posts should end with the forms -어요, -이에요/예요, -(이)여요, -(이)요.
         
         Hallucination:
         You always generate blog posts based on verifiable factual statements.
         You speak mainly about factual information related to subways and do not add information about subways on your own.
         """
 
-    def _human_message(self***REMOVED***:
-        user_message_placeholder = "{question***REMOVED***"
+    def _human_message(self):
+        user_message_placeholder = "{question}"
         return user_message_placeholder
 
-    def _define_chain_list(self***REMOVED***:
+    def _define_chain_list(self):
         # 카테고리에 따라 chain_list를 정의
         chain_list = {
-            "지연": ["지연/사고 일시", "지연/사고 노선", "지연/사고 이유"***REMOVED***,
-            "파업": ["파업 일시", "파업 노선", "파업 이유"***REMOVED***,
-            "연장": ["연장 노선"***REMOVED***,
-        ***REMOVED***
-        return chain_list.get(self.category, [***REMOVED******REMOVED***
+            "지연": ["지연/사고 일시", "지연/사고 노선", "지연/사고 이유"],
+            "파업": ["파업 일시", "파업 노선", "파업 이유"],
+            "연장": ["연장 노선"],
+        }
+        return chain_list.get(self.category, [])
 
     @property
-    def memory(self***REMOVED***:
+    def memory(self):
         if not self._memory:
-            self._memory = self._build_memory(***REMOVED***
+            self._memory = self._build_memory()
         return self._memory
 
-    def _build_memory(self***REMOVED***:
-        return ConversationSummaryBufferMemory(llm=self.llm, max_token_limit=100, memory_key="chat_history", return_messages=True***REMOVED***
+    def _build_memory(self):
+        return ConversationSummaryBufferMemory(llm=self.llm, max_token_limit=100, memory_key="chat_history", return_messages=True)
 
-    def _build_chain(self***REMOVED***:
-        return LLMChain(llm=self.llm, prompt=self.prompt_template, memory=self.memory***REMOVED***
+    def _build_chain(self):
+        return LLMChain(llm=self.llm, prompt=self.prompt_template, memory=self.memory)
     
-    def execute(self, source_content***REMOVED***:
-        self.chain({"question": "subway information(article***REMOVED*** :" + source_content + " Just REVIEW subway " + self.category + " information"***REMOVED******REMOVED***
+    def execute(self, source_content):
+        self.chain({"question": "subway information(article) :" + source_content + " Just REVIEW subway " + self.category + " information"})
         for i in self.chain_list:
-            self.chain({"question": "Using the provided information \n write " + i + ":"***REMOVED******REMOVED***
-        self.chain({"question": "블로그 글 작성해줘"***REMOVED******REMOVED***
-        self.chain({"question": f"1. 뉴스기사의 내용을 학습해 2. 뉴스 기사의 {','.join(self.chain_list***REMOVED******REMOVED***를 학습해 3. 학습한 뉴스기사와 블로그글을 비교해 4.블로그 글에 틀린 정보가 있다면 수정해 뉴스기사: " + source_content + "블로그 글 :"***REMOVED******REMOVED***
-        response = self.chain({"question": self.prompt_content***REMOVED******REMOVED***
+            self.chain({"question": "Using the provided information \n write " + i + ":"})
+        self.chain({"question": "블로그 글 작성해줘"})
+        self.chain({"question": f"1. 뉴스기사의 내용을 학습해 2. 뉴스 기사의 {','.join(self.chain_list)}를 학습해 3. 학습한 뉴스기사와 블로그글을 비교해 4.블로그 글에 틀린 정보가 있다면 수정해 뉴스기사: " + source_content + "블로그 글 :"})
+        response = self.chain({"question": self.prompt_content})
         return response
 

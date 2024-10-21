@@ -1,19 +1,19 @@
 from enum import Enum, auto
-***REMOVED***
+from abc import ABC, abstractmethod
 import re
-class WritingTemplateType(Enum***REMOVED***:
-    DELAY = auto(***REMOVED***
-    STRIKE = auto(***REMOVED***
-    TIMETABLE = auto(***REMOVED***
-    EXTENSION = auto(***REMOVED***
+class WritingTemplateType(Enum):
+    DELAY = auto()
+    STRIKE = auto()
+    TIMETABLE = auto()
+    EXTENSION = auto()
 
 
-class BaseTemplate(ABC***REMOVED***:
-***REMOVED***
-    def prompt(self***REMOVED***:
+class BaseTemplate(ABC):
+    @abstractmethod
+    def prompt(self):
         # prompt content 문자열 반환
         pass
 
-    def clean_whitespace(self, text***REMOVED***:
+    def clean_whitespace(self, text):
         # Strip whitespace from the start and end of the text, then replace multiple spaces with a single space
-        return re.sub(r'\s+', ' ', text.strip(***REMOVED******REMOVED***
+        return re.sub(r'\s+', ' ', text.strip())

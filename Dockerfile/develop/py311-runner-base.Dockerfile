@@ -24,29 +24,29 @@ RUN apt-get install -y gh
 RUN pip3 install jwt
 
 # adduser "runner"
-RUN adduser ${USER_NAME***REMOVED***
+RUN adduser ${USER_NAME}
 
 # Docker
 RUN curl -fsSL https://get.docker.com -o get-docker.sh
 RUN sh get-docker.sh
 # dind docker group gid 수정
-# RUN groupadd -f ${DOCKER_GROUP_NAME***REMOVED***
-RUN groupmod -g ${DOCKER_GROUP_ID***REMOVED*** ${DOCKER_GROUP_NAME***REMOVED***
-RUN usermod -aG ${DOCKER_GROUP_NAME***REMOVED*** root
-RUN usermod -aG ${DOCKER_GROUP_NAME***REMOVED*** ${USER_NAME***REMOVED***
-RUN newgrp ${DOCKER_GROUP_NAME***REMOVED***
+# RUN groupadd -f ${DOCKER_GROUP_NAME}
+RUN groupmod -g ${DOCKER_GROUP_ID} ${DOCKER_GROUP_NAME}
+RUN usermod -aG ${DOCKER_GROUP_NAME} root
+RUN usermod -aG ${DOCKER_GROUP_NAME} ${USER_NAME}
+RUN newgrp ${DOCKER_GROUP_NAME}
 
-WORKDIR ${RUNNER_WORKDIR***REMOVED***
+WORKDIR ${RUNNER_WORKDIR}
 
-COPY Dockerfile/develop/assets/generate_jwt_token.py ${RUNNER_WORKDIR***REMOVED***/generate_jwt_token.py
-COPY Dockerfile/develop/assets/entrypoint.sh ${RUNNER_WORKDIR***REMOVED***/entrypoint.sh
-RUN chmod -R a+w ${RUNNER_WORKDIR***REMOVED***
+COPY Dockerfile/develop/assets/generate_jwt_token.py ${RUNNER_WORKDIR}/generate_jwt_token.py
+COPY Dockerfile/develop/assets/entrypoint.sh ${RUNNER_WORKDIR}/entrypoint.sh
+RUN chmod -R a+w ${RUNNER_WORKDIR}
 
 USER root
 RUN curl -o actions-runner-linux-x64-2.302.1.tar.gz -L https://github.com/actions/runner/releases/download/v2.302.1/actions-runner-linux-x64-2.302.1.tar.gz
 RUN tar xzf ./actions-runner-linux-x64-2.302.1.tar.gz
 RUN ./bin/installdependencies.sh
 
-USER ${USER_NAME***REMOVED***
+USER ${USER_NAME}
 
-ENTRYPOINT ["./entrypoint.sh"***REMOVED***
+ENTRYPOINT ["./entrypoint.sh"]

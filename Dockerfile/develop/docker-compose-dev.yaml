@@ -2,26 +2,26 @@ version: "3.3"
 
 services:
   dev-py311-jupyter:
-    image: ${IMAGE_NAME***REMOVED***:${IMAGE_TAG***REMOVED***
+    image: ${IMAGE_NAME}:${IMAGE_TAG}
     platform: linux/amd64
     build:
       context: ../../
-      dockerfile: ${DOCKERFILE_PATH***REMOVED***
+      dockerfile: ${DOCKERFILE_PATH}
       args:
-        CURRENT_PATH: ${PWD***REMOVED***/../..
+        CURRENT_PATH: ${PWD}/../..
     ports:
-      - ${JUPYTER_NB_PORT***REMOVED***:8888
+      - ${JUPYTER_NB_PORT}:8888
     working_dir: /workspace
     environment:
-      PYTHONPATH: ${PYTHONPATH***REMOVED***
+      PYTHONPATH: ${PYTHONPATH}
       FASTAPI_OPENAPI_DEFER_BUILD: "true"
       TZ: Asia/Seoul
     volumes:
-      - ${PWD***REMOVED***/../../../ojitong:/workspace/ojitong
-      - ${PWD***REMOVED***/../../../metadata/.vscode-server:/home/jovyan/.vscode-server
-      - ${PWD***REMOVED***/../../../metadata/.local/share/jupyter/runtime:/home/jovyan/.local/share/jupyter/runtime
+      - ${PWD}/../../../ojitong:/workspace/ojitong
+      - ${PWD}/../../../metadata/.vscode-server:/home/jovyan/.vscode-server
+      - ${PWD}/../../../metadata/.local/share/jupyter/runtime:/home/jovyan/.local/share/jupyter/runtime
       #only in windows & wsl env
-      #- ${PWD***REMOVED***/../../../../.vscode-server:/home/jovyan/.vscode-server
-      #- ${PWD***REMOVED***/../../../../.local/share/jupyter/runtime:/home/jovyan/.local/share/jupyter/runtime
+      #- ${PWD}/../../../../.vscode-server:/home/jovyan/.vscode-server
+      #- ${PWD}/../../../../.local/share/jupyter/runtime:/home/jovyan/.local/share/jupyter/runtime
       # https://devopscube.com/run-docker-in-docker/
       - /var/run/docker.sock:/var/run/docker.sock
